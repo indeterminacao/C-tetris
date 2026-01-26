@@ -39,6 +39,16 @@ void lock_piece(struct Game *game) {
     }
 }
 
+Rotation get_next_rotation(struct Game *game, int direction) {
+    if (direction == 1) {
+        return (game->currentRotation + 1) % 4;
+    } 
+    else if (direction == -1) {
+        return (game->currentRotation + 3) % 4;
+    }
+    return game->currentRotation;
+}
+
 uint8_t clear_lines(struct Game *game) {
     uint8_t lines_cleared = 0; 
 

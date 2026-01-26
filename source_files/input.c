@@ -50,15 +50,26 @@ void keydown_inputs(struct Game *game, SDL_Event event ){
                 }
                 break;
 
-            case SDL_SCANCODE_UP: ; 
-                Rotation next_rot = (game->currentRotation + 1) % 4;
-                
+            case SDL_SCANCODE_UP: 
+            case SDL_SCANCODE_X:
+                {
+                Rotation next_rot = get_next_rotation(game, 1);
                 if (!check_collision(game, game->currentX, game->currentY, next_rot)) {
                     game->currentRotation = next_rot;
                 }
                 break;
-
-            default: break;
+            }
+            case SDL_SCANCODE_Z:
+            case SDL_SCANCODE_LCTRL:
+            {
+                Rotation prev_rot = get_next_rotation(game, -1);
+                if (!check_collision(game, game->currentX, game->currentY, prev_rot)) {
+                    game->currentRotation = prev_rot;
+                }
+                break;
+            }
+            default: 
+                break;
         }
     }
 }
