@@ -1,0 +1,56 @@
+# --- Dependencies & prerequisites ---
+*.d
+
+# --- Object files ---
+*.o
+*.obj
+*.elf
+
+# --- Linker files ---
+*.ilk
+*.map
+*.exp
+
+# --- Precompiled headers ---
+*.gch
+*.pch
+
+# --- Libraries ---
+*.lib
+*.a
+*.la
+*.lo
+/lib/
+/include/
+
+# --- Shared objects / DLLs ---
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# --- Executables ---
+*.exe
+*.out
+*.app
+*.hex
+
+# --- Debug files ---
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.dwo
+
+# --- IDEs and editors ---
+.vscode/
+output/
+.idea/
+.vs/ 
+*.swp
+*.swo
+*.user
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
