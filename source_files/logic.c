@@ -24,6 +24,14 @@ bool check_collision(struct Game *game, int grid_x, int grid_y, Rotation rot) {
     return false;
 }
 
+void spawn_piece(struct Game *game) {
+    game->currentType = rand() % 7; 
+    game->currentRotation = 0; 
+    game->currentX = (BOARD_WIDTH / 2) - 2; 
+    game->currentY = 0; 
+    game->active_piece = true;
+}
+
 void lock_piece(struct Game *game) {
     for(int py = 0; py < 4; py++){
         for(int px = 0; px < 4; px++){
@@ -47,6 +55,23 @@ Rotation get_next_rotation(struct Game *game, int direction) {
         return (game->currentRotation + 3) % 4;
     }
     return game->currentRotation;
+}
+
+void hard_drop(struct Game *game){
+    while(!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)){
+        game->currentY += 1;
+    }
+
+    lock_piece(game);
+
+    uint8_t lines = clear_lines(game);
+    if (lines > 0) {    
+        printf("Cleared %d lines!\n", lines);
+    }   
+
+    game->active_piece = false;
+
+    game->last_tick = SDL_GetTicks();
 }
 
 uint8_t clear_lines(struct Game *game) {

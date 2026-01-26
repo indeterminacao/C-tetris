@@ -47,6 +47,7 @@ void keydown_inputs(struct Game *game, SDL_Event event ){
             case SDL_SCANCODE_DOWN:
                 if (!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)) {
                     game->currentY += 1;
+                    game->last_tick = SDL_GetTicks();
                 }
                 break;
 
@@ -68,6 +69,11 @@ void keydown_inputs(struct Game *game, SDL_Event event ){
                 }
                 break;
             }
+            case SDL_SCANCODE_SPACE:
+            if(event.key.repeat == 0){
+                hard_drop(game);
+            }
+                break;
             default: 
                 break;
         }
