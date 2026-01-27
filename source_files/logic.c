@@ -1,4 +1,5 @@
 #include "../header_files/logic.h"
+#include "../header_files/table.h"
 
 bool check_collision(struct Game *game, int grid_x, int grid_y, Rotation rot) {
     for(int py = 0; py < 4; py++){
@@ -47,14 +48,40 @@ void lock_piece(struct Game *game) {
     }
 }
 
-Rotation get_next_rotation(struct Game *game, int direction) {
+void spin(struct Game *game, int direction) {
+    Rotation current_rot = game->currentRotation;
+    Rotation next_rot;
+    
     if (direction == 1) {
-        return (game->currentRotation + 1) % 4;
-    } 
-    else if (direction == -1) {
-        return (game->currentRotation + 3) % 4;
+        next_rot = (current_rot + 1) % 4;
+    } else if (direction == -1) {
+        next_rot = (current_rot + 3) % 4;
+    } else {
+        return; 
     }
-    return game->currentRotation;
+
+    const Point (*kicks)[4][4][5];
+
+    if(game->currentType == O) {
+        return;
+    } else if (game->currentType == I) {
+        kicks = &kicks_i;
+        } else {
+            kicks = &kicks_jlstz;
+        }
+
+    for (int i = 0; i < 5; i++) {
+        Point test = (*kicks)[current_rot][next_rot][i];
+        int new_x = game->currentX + test.x;
+        int new_y = game->currentY + test.y;
+
+        if (!check_collision(game, new_x, new_y, next_rot)) {
+            game->currentX = new_x;
+            game->currentY = new_y;
+            game->currentRotation = next_rot;
+            return; 
+        }
+    }
 }
 
 void hard_drop(struct Game *game){

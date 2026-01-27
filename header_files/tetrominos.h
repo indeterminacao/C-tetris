@@ -18,10 +18,10 @@ typedef enum {
 } TetrominoType;
 
 typedef enum {
-    ROT_NORTH = 0,
-    ROT_EAST,
-    ROT_SOUTH,
-    ROT_WEST
+    ROT_0 = 0, // Spawn
+    ROT_R = 1, // Right (Clockwise)
+    ROT_2 = 2, // 180
+    ROT_L = 3  // Left (Counter-clockwise)
 } Rotation;
 
 extern const uint8_t TETROMINOS[TETROMINO_C][ROTATION][MATRIX_SIZE][MATRIX_SIZE];
