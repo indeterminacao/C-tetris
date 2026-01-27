@@ -12,6 +12,8 @@
 //TODO: Polish - Ghost Piece (visual aid for hard drop)
 
 int main(int argc, char *argv[]) {
+    (void)argc; 
+    (void)argv;
     srand(time(NULL));
 
     struct Game game = {
@@ -83,7 +85,7 @@ if(sdl_initializer(&game)){
             draw_grid(&game); 
             
             if (game.active_piece) {
-                draw_tetro(&game, game.renderer, game.currentType, game.currentRotation, game.currentX, game.currentY);
+                draw_tetro(game.renderer, game.currentType, game.currentRotation, game.currentX, game.currentY);
             }
         }
 

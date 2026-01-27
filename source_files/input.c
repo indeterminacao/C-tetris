@@ -19,17 +19,16 @@ void event_handling(struct Game *game){
     }
 }
 
-void keydown_inputs(struct Game *game, SDL_Event event ){
-    switch(event.key.keysym.scancode){
-            if (event.key.keysym.sym == SDLK_ESCAPE) {
-                if (game->state == STATE_GAME || game->state == STATE_LEADERBOARD || game->state == STATE_OPTIONS) {
-                    game->state = STATE_MENU;
-                } else {
-                    game->ProgramOn = false;
-                }
-            return;
+void keydown_inputs(struct Game *game, SDL_Event event){
+    if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+        if (game->state == STATE_GAME || game->state == STATE_LEADERBOARD || game->state == STATE_OPTIONS) {
+            game->state = STATE_MENU;
+        } else {
+            game->ProgramOn = false;
         }
+        return; 
     }
+
     if (game->state == STATE_GAME) {
         switch(event.key.keysym.scancode){
             case SDL_SCANCODE_LEFT:
@@ -54,25 +53,25 @@ void keydown_inputs(struct Game *game, SDL_Event event ){
             case SDL_SCANCODE_UP: 
             case SDL_SCANCODE_X:
                 {
-                Rotation next_rot = get_next_rotation(game, 1);
-                if (!check_collision(game, game->currentX, game->currentY, next_rot)) {
-                    game->currentRotation = next_rot;
+                    Rotation next_rot = get_next_rotation(game, 1);
+                    if (!check_collision(game, game->currentX, game->currentY, next_rot)) {
+                        game->currentRotation = next_rot;
+                    }
+                    break;
                 }
-                break;
-            }
             case SDL_SCANCODE_Z:
             case SDL_SCANCODE_LCTRL:
-            {
-                Rotation prev_rot = get_next_rotation(game, -1);
-                if (!check_collision(game, game->currentX, game->currentY, prev_rot)) {
-                    game->currentRotation = prev_rot;
+                {
+                    Rotation prev_rot = get_next_rotation(game, -1);
+                    if (!check_collision(game, game->currentX, game->currentY, prev_rot)) {
+                        game->currentRotation = prev_rot;
+                    }
+                    break;
                 }
-                break;
-            }
             case SDL_SCANCODE_SPACE:
-            if(event.key.repeat == 0){
-                hard_drop(game);
-            }
+                if(event.key.repeat == 0){
+                    hard_drop(game);
+                }
                 break;
             default: 
                 break;
@@ -94,11 +93,4 @@ void mouse_inputs(struct Game *game, SDL_Event event) {
             game->state = STATE_OPTIONS;
         }
     }
-}
-
-bool is_mouse_over(SDL_Rect rect) {
-    int x, y;
-    SDL_GetMouseState(&x, &y);
-    SDL_Point pt = {x, y};
-    return SDL_PointInRect(&pt, &rect);
 }

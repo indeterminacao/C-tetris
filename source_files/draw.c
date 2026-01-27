@@ -1,11 +1,13 @@
 #include "../header_files/draw.h"
 
+/*
 static bool is_mouse_over(SDL_Rect rect) {
     int x, y;
     SDL_GetMouseState(&x, &y);
     SDL_Point pt = {x, y};
     return SDL_PointInRect(&pt, &rect);
 }
+*/
 
 typedef struct {
     Uint8 r, g, b, a;
@@ -111,7 +113,7 @@ void draw_grid(struct Game *game) {
     }
 }
 
-void draw_tetro(struct Game *game, SDL_Renderer *renderer, TetrominoType type, Rotation rotation, int grid_x, int grid_y) {
+void draw_tetro(SDL_Renderer *renderer, TetrominoType type, Rotation rotation, int grid_x, int grid_y) {
     
     for(int py = 0; py < 4; py++){
         for(int px = 0; px < 4; px++){

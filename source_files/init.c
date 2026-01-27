@@ -11,12 +11,15 @@ bool sdl_initializer(struct Game *game){
                                     SCREEN_HEIGHT, 0);
     if(!(game->window)){
         fprintf(stderr, "Error creating window: %s\n", SDL_GetError());
+        SDL_Quit(); 
         return true;
     }
 
     game->renderer = SDL_CreateRenderer(game->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-        if(!(game->renderer)){
+    if(!(game->renderer)){
         fprintf(stderr, "Error creating renderer: %s\n", SDL_GetError());
+        SDL_DestroyWindow(game->window);
+        SDL_Quit();
         return true;
     }
     
@@ -24,7 +27,13 @@ bool sdl_initializer(struct Game *game){
 }
 
 void cleanup(struct Game *game){
-    SDL_DestroyRenderer(game->renderer);
-    SDL_DestroyWindow(game->window);
+    if (game->renderer) {
+        SDL_DestroyRenderer(game->renderer);
+        game->renderer = NULL; 
+    }
+    if (game->window) {
+        SDL_DestroyWindow(game->window);
+        game->window = NULL;
+    }
     SDL_Quit();
 }

@@ -34,6 +34,8 @@
 *.out
 *.app
 *.hex
+game_linux
+game_windows.exe
 
 # --- Debug files ---
 *.dSYM/
@@ -54,3 +56,6 @@ output/
 # --- OS files ---
 .DS_Store
 Thumbs.db
+
+# --- Logs ---
+*.log
