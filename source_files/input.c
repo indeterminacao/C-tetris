@@ -34,12 +34,14 @@ void keydown_inputs(struct Game *game, SDL_Event event){
 case SDL_SCANCODE_LEFT:
                 if (!check_collision(game, game->currentX - 1, game->currentY, game->currentRotation)) {
                     game->currentX -= 1;
+                    game->last_move_was_rotate = false;
                 }
                 break;
                 
             case SDL_SCANCODE_RIGHT:
                 if (!check_collision(game, game->currentX + 1, game->currentY, game->currentRotation)) {
                     game->currentX += 1;
+                    game->last_move_was_rotate = false;
                 }
                 break;
 

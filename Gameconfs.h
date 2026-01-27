@@ -48,6 +48,7 @@ struct Game {
     int currentX; 
     int currentY; 
     bool active_piece;
+    bool last_move_was_rotate;
     
     TetrominoType currentType;      // Piece (I, O, T...)
     Rotation currentRotation;       // Rotation (0, 1, 2, 3)

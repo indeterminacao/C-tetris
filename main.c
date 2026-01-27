@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
         .btn_leaderboard = {SCREEN_WIDTH/2 - 100, 250, 200, 50},
         .btn_options = {SCREEN_WIDTH/2 - 100, 350, 200, 50},
         .active_piece = false,
+        .last_move_was_rotate = false,
     };
 
     for(int y=0; y<TOTAL_ROWS; y++) {
