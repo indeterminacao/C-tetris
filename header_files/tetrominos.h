@@ -18,6 +18,13 @@ typedef enum {
 } TetrominoType;
 
 typedef enum {
+    TSPIN_NONE = 0,
+    TSPIN_MINI,
+    TSPIN_NORMAL
+} TSpinType;
+
+
+typedef enum {
     ROT_0 = 0, // Spawn
     ROT_R = 1, // Right (Clockwise)
     ROT_2 = 2, // 180

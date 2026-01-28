@@ -49,6 +49,7 @@ case SDL_SCANCODE_LEFT:
                 if (!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)) {
                     game->currentY += 1;
                     game->last_tick = SDL_GetTicks(); 
+                    game->last_move_was_rotate = false;
                 }
                 break;
 

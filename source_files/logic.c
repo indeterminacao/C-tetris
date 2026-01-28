@@ -3,34 +3,44 @@
 
 bool check_collision(struct Game *game, int grid_x, int grid_y, Rotation rot) {
     for(int py = 0; py < 4; py++){
-        for(int px =0; px < 4; px++){
+        for(int px = 0; px < 4; px++){
             if(TETROMINOS[game->currentType][rot][py][px] != 0){
-            int board_x = grid_x + px;
-            int board_y = grid_y + py;
+                int board_x = grid_x + px;
+                int board_y = grid_y + py;
 
-            if(board_x < 0 || board_x >= BOARD_WIDTH){
-                return true; 
-            }
-            if(board_y >= TOTAL_ROWS){
-                return true; 
-            }
-            if(board_y >= 0){
-                if(game->grid[board_y][board_x] != 0){
-                    return true; 
+                if(board_x < 0 || board_x >= BOARD_WIDTH) return true; 
+                if(board_y >= TOTAL_ROWS) return true; 
+                
+                if(board_y >= 0){
+                    if(game->grid[board_y][board_x] != 0) return true; 
                 }
-            }
             }
         }
     }
     return false;
 }
 
+bool is_blocked(struct Game *game, int x, int y) {
+    if (x < 0 || x >= BOARD_WIDTH) return true; 
+    if (y >= TOTAL_ROWS) return true;        
+    if (y < 0) return false;                    
+    return game->grid[y][x] != 0;
+}
+
+
 void spawn_piece(struct Game *game) {
     game->currentType = rand() % 7; 
-    game->currentRotation = 0; 
+    game->currentRotation = ROT_0; 
     game->currentX = (BOARD_WIDTH / 2) - 2; 
     game->currentY = 0; 
+    
     game->active_piece = true;
+    game->last_move_was_rotate = false; 
+
+    if (check_collision(game, game->currentX, game->currentY, game->currentRotation)) {
+        printf("GAME OVER\n");
+        game->active_piece = false;
+    }
 }
 
 void lock_piece(struct Game *game) {
@@ -46,6 +56,83 @@ void lock_piece(struct Game *game) {
             }
         }
     }
+}
+
+uint8_t clear_lines(struct Game *game) {
+    uint8_t lines_cleared = 0; 
+    for(int y = 0; y < TOTAL_ROWS; y++){ 
+        bool line_full = true;
+        for(int x = 0; x < BOARD_WIDTH; x++){
+            if(game->grid[y][x] == 0){
+                line_full = false;
+                break;
+            }
+        }
+        if(line_full){
+            lines_cleared++;
+            for(int ty = y; ty > 0; ty--){
+                for(int tx = 0; tx < BOARD_WIDTH; tx++){
+                    game->grid[ty][tx] = game->grid[ty - 1][tx];
+                }
+            }
+            for(int tx = 0; tx < BOARD_WIDTH; tx++){
+                game->grid[0][tx] = 0;
+            }
+            y--; 
+        }
+    }
+    return lines_cleared;
+}
+
+TSpinType is_t_spin(struct Game *game) {
+    if (game->currentType != T || !game->last_move_was_rotate) {
+        return TSPIN_NONE;
+    }
+
+    int center_x = game->currentX + 1;
+    int center_y = game->currentY + 1;
+
+    int corners[4][2] = {
+        {center_x - 1, center_y - 1}, 
+        {center_x + 1, center_y - 1}, 
+        {center_x - 1, center_y + 1}, 
+        {center_x + 1, center_y + 1}  
+    };
+
+    int occupied_corners = 0;
+    for (int i = 0; i < 4; i++) {
+        if (is_blocked(game, corners[i][0], corners[i][1])) {
+            occupied_corners++;
+        }
+    }
+
+    if (occupied_corners < 3) {
+        return TSPIN_NONE;
+    } 
+    
+
+    return TSPIN_NORMAL; 
+}
+
+void resolve_lock(struct Game *game) {
+    TSpinType tspin = is_t_spin(game);
+
+    lock_piece(game);
+
+    uint8_t lines = clear_lines(game);
+
+    if (tspin == TSPIN_NORMAL) {
+        if (lines == 0) printf("T-Spin Zero!\n"); 
+        if (lines == 1) printf("T-SPIN SINGLE! \n");
+        if (lines == 2) printf("T-SPIN DOUBLE! \n");
+        if (lines == 3) printf("T-SPIN TRIPLE! \n");
+    } else if (lines > 0) {
+        if (lines == 4) printf("TETRIS! \n");
+        else printf("Cleared %d lines\n", lines);
+    }
+
+    game->active_piece = false;
+    game->last_move_was_rotate = false;
 }
 
 void spin(struct Game *game, int direction) {
@@ -66,9 +153,9 @@ void spin(struct Game *game, int direction) {
         return;
     } else if (game->currentType == I) {
         kicks = &kicks_i;
-        } else {
-            kicks = &kicks_jlstz;
-        }
+    } else {
+        kicks = &kicks_jlstz;
+    }
 
     for (int i = 0; i < 5; i++) {
         Point test = (*kicks)[current_rot][next_rot][i];
@@ -79,57 +166,19 @@ void spin(struct Game *game, int direction) {
             game->currentX = new_x;
             game->currentY = new_y;
             game->currentRotation = next_rot;
+            game->last_move_was_rotate = true; 
             return; 
         }
     }
 }
 
 void hard_drop(struct Game *game){
+    game->last_move_was_rotate = false; 
+
     while(!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)){
         game->currentY += 1;
     }
-
-    lock_piece(game);
-
-    uint8_t lines = clear_lines(game);
-    if (lines > 0) {    
-        printf("Cleared %d lines!\n", lines);
-    }   
-
-    game->active_piece = false;
+    resolve_lock(game);
 
     game->last_tick = SDL_GetTicks();
-}
-
-uint8_t clear_lines(struct Game *game) {
-    uint8_t lines_cleared = 0; 
-
-    for(int y = 0; y < TOTAL_ROWS; y++){ 
-        bool line_full = true;
-        
-        for(int x = 0; x < BOARD_WIDTH; x++){
-            if(game->grid[y][x] == 0){
-                line_full = false;
-                break;
-            }
-        }
-
-        if(line_full){
-            lines_cleared++;
-            
-            for(int ty = y; ty > 0; ty--){
-                for(int tx = 0; tx < BOARD_WIDTH; tx++){
-                    game->grid[ty][tx] = game->grid[ty - 1][tx];
-                }
-            }
-            
-            for(int tx = 0; tx < BOARD_WIDTH; tx++){
-                game->grid[0][tx] = 0;
-            }
-
-            y--; 
-        }
-    }
-
-    return lines_cleared;
 }

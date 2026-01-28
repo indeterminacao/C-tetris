@@ -59,3 +59,4 @@ Thumbs.db
 
 # --- Logs ---
 *.log
+log_valgrind.txt
