@@ -1,4 +1,5 @@
-#include "../header_files/draw.h"
+﻿#include "../header_files/draw.h"
+#include "../header_files/logic.h"
 
 /*
 static bool is_mouse_over(SDL_Rect rect) {
@@ -13,7 +14,7 @@ typedef struct {
     Uint8 r, g, b, a;
 } Color;
 
-static const Color TETROMINO_COLORS[7] = {
+static const Color TETROMINO_COLORS[8] = {
     [I] = { 0, 255, 255, 255 },   // I - Cyan
     [O] = { 255, 255, 0, 255 },   // O - Yellow
     [T] = { 128, 0, 128, 255 },   // T - Purple
@@ -21,6 +22,7 @@ static const Color TETROMINO_COLORS[7] = {
     [Z] = { 255, 0, 0, 255 },     // Z - Red
     [J] = { 0, 0, 255, 255 },     // J - Blue
     [L] = { 255, 165, 0, 255 },   // L - Orange
+    [G] = { 192, 192, 192, 100 }    // Ghost 
 };
 
 void color_id(SDL_Renderer *renderer, TetrominoType type) {
@@ -91,7 +93,6 @@ for (int i = 0; i < BOARD_WIDTH + 2; i++) {
 void draw_grid(struct Game *game) {
     for(int y = 0; y < TOTAL_ROWS; y++){
         for(int x = 0; x < BOARD_WIDTH; x++){
-            
             if(game->grid[y][x] != 0){
                 SDL_Rect block_rect;
                 block_rect.w = BLOCK_SIZE;
@@ -114,11 +115,9 @@ void draw_grid(struct Game *game) {
 }
 
 void draw_tetro(SDL_Renderer *renderer, TetrominoType type, Rotation rotation, int grid_x, int grid_y) {
-    
     for(int py = 0; py < 4; py++){
         for(int px = 0; px < 4; px++){
             if(TETROMINOS[type][rotation][py][px] != 0){
-                
                 int FinalX = grid_x + px;
                 int FinalY = grid_y + py;
         
@@ -129,7 +128,6 @@ void draw_tetro(SDL_Renderer *renderer, TetrominoType type, Rotation rotation, i
                 block_rect.y = (FinalY - BUFFER_ZONE) * BLOCK_SIZE;
 
                 if((FinalY - BUFFER_ZONE) >= 0){
-                
                     color_id(renderer, type);
                     SDL_RenderFillRect(renderer, &block_rect);
                     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
@@ -138,4 +136,47 @@ void draw_tetro(SDL_Renderer *renderer, TetrominoType type, Rotation rotation, i
             }
         }
     }
+}
+
+static int compute_ghost_y(struct Game *game) {
+    int gy = game->currentY;
+    while (!check_collision(game, game->currentX, gy + 1, game->currentRotation)) {
+        gy++;
+    }
+    return gy;
+}
+
+void draw_ghost(struct Game *game) {
+    int ghostY = compute_ghost_y(game);
+    SDL_SetRenderDrawBlendMode(game->renderer, SDL_BLENDMODE_BLEND);
+
+    Color c = TETROMINO_COLORS[G];
+    SDL_SetRenderDrawColor(game->renderer, c.r, c.g, c.b, 100);
+
+    for (int py = 0; py < 4; py++) {
+        for (int px = 0; px < 4; px++) {
+            if (TETROMINOS[game->currentType][game->currentRotation][py][px] != 0) {
+                int FinalX = game->currentX + px;
+                int FinalY = ghostY + py;
+
+                if (FinalX >= 0 && FinalX < BOARD_WIDTH && FinalY >= 0 && FinalY < TOTAL_ROWS) {
+                    SDL_Rect block_rect;
+                    block_rect.w = BLOCK_SIZE;
+                    block_rect.h = BLOCK_SIZE;
+                    block_rect.x = GAME_OFFSET_X + (FinalX * BLOCK_SIZE);
+                    block_rect.y = (FinalY - BUFFER_ZONE) * BLOCK_SIZE;
+
+                    if ((FinalY - BUFFER_ZONE) >= 0) {
+                        SDL_RenderFillRect(game->renderer, &block_rect);
+
+                        SDL_SetRenderDrawColor(game->renderer, 255, 255, 255, 80);
+                        SDL_RenderDrawRect(game->renderer, &block_rect);
+
+                        SDL_SetRenderDrawColor(game->renderer, c.r, c.g, c.b, 100);
+                    }
+                }
+            }
+        }
+    }
+    SDL_SetRenderDrawBlendMode(game->renderer, SDL_BLENDMODE_NONE);
 }

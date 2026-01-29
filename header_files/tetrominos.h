@@ -15,6 +15,7 @@ typedef enum {
     Z = 4,
     J = 5,
     L = 6,
+    G = 7  // Ghost piece
 } TetrominoType;
 
 typedef enum {
@@ -22,7 +23,6 @@ typedef enum {
     TSPIN_MINI,
     TSPIN_NORMAL
 } TSpinType;
-
 
 typedef enum {
     ROT_0 = 0, // Spawn
@@ -32,4 +32,5 @@ typedef enum {
 } Rotation;
 
 extern const uint8_t TETROMINOS[TETROMINO_C][ROTATION][MATRIX_SIZE][MATRIX_SIZE];
+
 #endif
