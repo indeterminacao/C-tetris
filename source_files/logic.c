@@ -8,11 +8,16 @@ bool check_collision(struct Game *game, int grid_x, int grid_y, Rotation rot) {
                 int board_x = grid_x + px;
                 int board_y = grid_y + py;
 
-                if(board_x < 0 || board_x >= BOARD_WIDTH) return true; 
-                if(board_y >= TOTAL_ROWS) return true; 
-                
+                if(board_x < 0 || board_x >= BOARD_WIDTH) { 
+                    return true; 
+                }
+                if(board_y >= TOTAL_ROWS) { 
+                    return true; 
+                }
                 if(board_y >= 0){
-                    if(game->grid[board_y][board_x] != 0) return true; 
+                    if(game->grid[board_y][board_x] != 0) {
+                    return true; 
+                    }
                 }
             }
         }
@@ -27,6 +32,13 @@ bool is_blocked(struct Game *game, int x, int y) {
     return game->grid[y][x] != 0;
 }
 
+void EPLD(struct Game *game) {
+    if(check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)){
+    game->Lock_resets -= 1;
+    game->lock_timer = SDL_GetTicks();
+    printf("Moves left: %d\n", game->Lock_resets);
+    }
+}
 
 void spawn_piece(struct Game *game) {
     game->currentType = rand() % 7; 
@@ -133,6 +145,35 @@ void resolve_lock(struct Game *game) {
 
     game->active_piece = false;
     game->last_move_was_rotate = false;
+}
+
+void update_score(struct Game *game, uint8_t lines_cleared, TSpinType tspin, bool b2b) {
+    Uint32 points = 0;
+    float multiplier = 1.0;
+        if (b2b){
+        multiplier = 1.5;
+    }
+
+    if (tspin == TSPIN_NORMAL) {
+        switch (lines_cleared) {
+            case 0: points = 400; break; 
+            case 1: points = 800; break; 
+            case 2: points = 1200; break; 
+            case 3: points = 1600; break; 
+        }
+    } else {
+        switch (lines_cleared) {
+            case 1: points = 100; break; 
+            case 2: points = 300; break; 
+            case 3: points = 500; break; 
+            case 4: 
+                points = 800; 
+                game->B2B = true;
+            break; 
+        }
+    }
+    game->score += (points * (game->level + 1)) * multiplier; 
+    
 }
 
 void spin(struct Game *game, int direction) {

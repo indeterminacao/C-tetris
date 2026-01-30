@@ -24,11 +24,15 @@ int main(int argc, char *argv[]) {
         .currentX = (BOARD_WIDTH / 2) - 2,
         .currentY = 0,            
         .drop_speed = 500,
+        .lock_delay = 500,
         .btn_play = {SCREEN_WIDTH/2 - 100, 150, 200, 50},
         .btn_leaderboard = {SCREEN_WIDTH/2 - 100, 250, 200, 50},
         .btn_options = {SCREEN_WIDTH/2 - 100, 350, 200, 50},
         .active_piece = false,
         .last_move_was_rotate = false,
+        .lock_timer = 0,
+        .is_locking = false,
+        .Lock_resets = 15,
     };
 
     for(int y=0; y<TOTAL_ROWS; y++) {
@@ -36,8 +40,6 @@ int main(int argc, char *argv[]) {
             game.grid[y][x] = 0;
         }
     }
-
-
 
     if(sdl_initializer(&game)){
         return 1;
@@ -57,19 +59,30 @@ int main(int argc, char *argv[]) {
 
         event_handling(&game);
 
-        if (game.state == STATE_GAME && game.active_piece) {
+    if (game.state == STATE_GAME && game.active_piece) { 
+                
+        bool on_ground = check_collision(&game, game.currentX, game.currentY + 1, game.currentRotation);
+
+        if (!on_ground) {
+            game.is_locking = false;
 
             if(game.current_tick > game.last_tick + game.drop_speed){
-                if (!check_collision(&game, game.currentX, game.currentY + 1, game.currentRotation)) {
                     game.currentY += 1;
+                    game.Lock_resets = 15;
                     game.last_move_was_rotate = false;
-                } else {
-                    resolve_lock(&game);
+                    game.last_tick = game.current_tick;
                 }
-
-                game.last_tick = game.current_tick;
+            } else {
+                if (!game.is_locking) {
+                    game.lock_timer = SDL_GetTicks();
+                    game.is_locking = true;
+                    }
+                if (game.current_tick > game.lock_timer + game.lock_delay || game.Lock_resets <= 0) {
+                    resolve_lock(&game);
+                    game.is_locking = false; 
+                    }
+                }
             }
-        }
 
         SDL_SetRenderDrawColor(game.renderer, 20, 20, 20, 255);
         SDL_RenderClear(game.renderer);
