@@ -69,7 +69,6 @@ int main(int argc, char *argv[]) {
 
             if(game.current_tick > game.last_tick + game.drop_speed){
                     game.currentY += 1;
-                    game.lock_resets = 15;
                     game.last_move_was_rotate = false;
                     game.last_tick = game.current_tick;
                 }

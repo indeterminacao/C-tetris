@@ -28,7 +28,7 @@
 
 #define VISIBLE_HEIGHT 20         /**< Number of visible rows shown to the player */
 #define BUFFER_ZONE 2             /**< Invisible buffer rows above the visible board */
-#define BOARD_HEIGHT 20           /**< Visible board height (duplicate of VISIBLE_HEIGHT) */
+#define BOARD_HEIGHT VISIBLE_HEIGHT          /**< Visible board height (duplicate of VISIBLE_HEIGHT) */
 #define TOTAL_ROWS (VISIBLE_HEIGHT + BUFFER_ZONE) 
 
 // Calculated Screen Dimensions

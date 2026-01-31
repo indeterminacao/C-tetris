@@ -120,8 +120,6 @@ static void soft_drop(struct Game *game){
         game->currentY += 1;
         game->last_tick = SDL_GetTicks();
         game->last_move_was_rotate = false;
-        
-        game->lock_resets = 15; 
     }
 }
 

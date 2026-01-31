@@ -33,10 +33,16 @@ bool is_blocked(struct Game *game, int x, int y) {
 }
 
 void EPLD(struct Game *game) {
-    if(check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)){
-    game->lock_resets -= 1;
-    game->lock_timer = SDL_GetTicks();
-    printf("Moves left: %d\n", game->lock_resets);
+    if (!check_collision(game,
+            game->currentX,
+            game->currentY + 1,
+            game->currentRotation)) {
+        return;
+    }
+
+    if (game->lock_resets > 0) {
+        game->lock_resets--;
+        game->lock_timer = SDL_GetTicks();
     }
 }
 
@@ -45,6 +51,7 @@ void spawn_piece(struct Game *game) {
     game->currentRotation = ROT_0; 
     game->currentX = (BOARD_WIDTH / 2) - 2; 
     game->currentY = 0; 
+    game->lock_resets = 15;
     
     game->active_piece = true;
     game->last_move_was_rotate = false; 
