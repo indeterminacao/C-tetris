@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
         .last_move_was_rotate = false,
         .lock_timer = 0,
         .is_locking = false,
-        .Lock_resets = 15,
+        .lock_resets = 15,
         .level = 1
     };
 
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
             if(game.current_tick > game.last_tick + game.drop_speed){
                     game.currentY += 1;
-                    game.Lock_resets = 15;
+                    game.lock_resets = 15;
                     game.last_move_was_rotate = false;
                     game.last_tick = game.current_tick;
                 }
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
                     game.lock_timer = SDL_GetTicks();
                     game.is_locking = true;
                     }
-                if (game.current_tick > game.lock_timer + game.lock_delay || game.Lock_resets <= 0) {
+                if (game.current_tick > game.lock_timer + game.lock_delay || game.lock_resets <= 0) {
                     resolve_lock(&game);
                     game.is_locking = false; 
                     }

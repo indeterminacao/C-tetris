@@ -1,11 +1,11 @@
 #ifndef INIT_H
 #define INIT_H
 
-#include "../Gameconfs.h"
+struct Game;
 
 /** @brief Initializes SDL and creates the main window and renderer
 * @param game Pointer to the main Game struct
-* @return true if initialization was successful, false otherwise
+* @return false if initialization was successful, true otherwise
 */
 bool sdl_initializer(struct Game *game);
 

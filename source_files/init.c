@@ -1,3 +1,4 @@
+#include "../Gameconfs.h"
 #include "../header_files/init.h"
 
 bool sdl_initializer(struct Game *game){

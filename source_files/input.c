@@ -1,6 +1,24 @@
 #include "../header_files/input.h"
 #include "../header_files/logic.h"
 
+//Prototypes
+/** @brief Auxiliary function for keydown events 
+* @param game Pointer to the main Game struct
+* @param event SDL_Event structure containing the keydown event
+*/
+static void keydown_inputs(struct Game *game, SDL_Event event );
+
+/** @brief Auxiliary function for mouse events
+* @param game Pointer to the main Game struct
+* @param event SDL_Event structure containing the mouse event
+*/
+static void mouse_inputs(struct Game *game, SDL_Event event);
+static void move_left(struct Game *game);
+static void move_right(struct Game *game);
+static void soft_drop(struct Game *game);
+static void try_rotate(struct Game *game, int direction);
+
+
 void event_handling(struct Game *game){
     SDL_Event event;
     while(SDL_PollEvent(&event)){
@@ -19,7 +37,7 @@ void event_handling(struct Game *game){
     }
 }
 
-void keydown_inputs(struct Game *game, SDL_Event event){
+static void keydown_inputs(struct Game *game, SDL_Event event){
     if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
         if (game->state == STATE_GAME || game->state == STATE_LEADERBOARD || game->state == STATE_OPTIONS) {
             game->state = STATE_MENU;
@@ -31,47 +49,26 @@ void keydown_inputs(struct Game *game, SDL_Event event){
 
     if (game->state == STATE_GAME) {
         switch(event.key.keysym.scancode){
-case SDL_SCANCODE_LEFT:
-                if (!check_collision(game, game->currentX - 1, game->currentY, game->currentRotation)) {
-                    game->currentX -= 1;
-                    game->last_move_was_rotate = false;
-                    EPLD(game);
-                }
+            case SDL_SCANCODE_LEFT:
+                    move_left(game);
                 break;
                 
             case SDL_SCANCODE_RIGHT:
-                if (!check_collision(game, game->currentX + 1, game->currentY, game->currentRotation)) {
-                    game->currentX += 1;
-                    game->last_move_was_rotate = false;
-                    EPLD(game);
-                }
+                    move_right(game);
                 break;
 
             case SDL_SCANCODE_DOWN:
-                if (!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)) {
-                    game->currentY += 1;
-                    game->last_tick = SDL_GetTicks();
-                    game->last_move_was_rotate = false;
-                }
+                    soft_drop(game);
                 break;
 
             case SDL_SCANCODE_UP: 
             case SDL_SCANCODE_X:
-            { Rotation orot = game->currentRotation; 
-                spin(game, 1);
-                if (game->currentRotation != orot) {
-                    EPLD(game);
-                }
-                }
+                    try_rotate(game, 1);
                 break;
+
             case SDL_SCANCODE_Z:
             case SDL_SCANCODE_LCTRL:
-                { Rotation orot = game->currentRotation;
-                spin(game, -1);
-                if (game->currentRotation != orot) {
-                    EPLD(game);
-                }
-                }
+                    try_rotate(game, -1);
                 break;
 
             case SDL_SCANCODE_SPACE:
@@ -86,7 +83,7 @@ case SDL_SCANCODE_LEFT:
     }
 }
 
-void mouse_inputs(struct Game *game, SDL_Event event) {
+static void mouse_inputs(struct Game *game, SDL_Event event) {
     if (game->state == STATE_MENU && event.button.button == SDL_BUTTON_LEFT) {
         SDL_Point mouse_point = { event.button.x, event.button.y };
 
@@ -99,5 +96,40 @@ void mouse_inputs(struct Game *game, SDL_Event event) {
         else if (SDL_PointInRect(&mouse_point, &game->btn_options)) {
             game->state = STATE_OPTIONS;
         }
+    }
+}
+
+static void move_left(struct Game *game){
+    if (!check_collision(game, game->currentX - 1, game->currentY, game->currentRotation)) {
+        game->currentX -= 1;
+        game->last_move_was_rotate = false;
+        EPLD(game);
+    }
+}
+
+static void move_right(struct Game *game) {
+    if (!check_collision(game, game->currentX + 1, game->currentY, game->currentRotation)) {
+        game->currentX += 1;
+        game->last_move_was_rotate = false;
+        EPLD(game);
+    }
+}
+
+static void soft_drop(struct Game *game){
+    if (!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)) {
+        game->currentY += 1;
+        game->last_tick = SDL_GetTicks();
+        game->last_move_was_rotate = false;
+        
+        game->lock_resets = 15; 
+    }
+}
+
+static void try_rotate(struct Game *game, int direction) {
+    Rotation orot = game->currentRotation;
+    spin(game, direction);
+
+    if (game->currentRotation != orot) {
+        EPLD(game);
     }
 }

@@ -34,9 +34,9 @@ bool is_blocked(struct Game *game, int x, int y) {
 
 void EPLD(struct Game *game) {
     if(check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)){
-    game->Lock_resets -= 1;
+    game->lock_resets -= 1;
     game->lock_timer = SDL_GetTicks();
-    printf("Moves left: %d\n", game->Lock_resets);
+    printf("Moves left: %d\n", game->lock_resets);
     }
 }
 
