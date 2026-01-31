@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
         .lock_timer = 0,
         .is_locking = false,
         .Lock_resets = 15,
+        .level = 1
     };
 
     for(int y=0; y<TOTAL_ROWS; y++) {

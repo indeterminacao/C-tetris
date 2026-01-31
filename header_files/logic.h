@@ -33,6 +33,14 @@ void resolve_lock(struct Game *game);
 */
 uint8_t clear_lines(struct Game *game);
 
+/** @brief Checks for and clears completed lines from the game grid
+* @param game Pointer to the main Game struct   
+* @param lines_cleared amount of lines cleared 
+* @param tspin type of tspin registered 
+* @param b2b Is back-to-back active?
+*/
+void update_score(struct Game *game, uint8_t lines_cleared, TSpinType tspin);
+
 /** @brief Spins the current piece and apply wall kicks if needed
 * @param game Pointer to the main Game struct
 * @param direction Spin direction: 1 for clockwise, -1 for counter-clockwise
@@ -59,5 +67,7 @@ void hard_drop(struct Game *game);
 * @param game Pointer to the main Game struct
 */
 void EPLD(struct Game *game);
+
+
 
 #endif

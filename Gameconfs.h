@@ -83,7 +83,7 @@ struct Game {
 
     Uint32 score;            /**< Player score */
     Uint32 level;            /**< Current level */
-    Uint32 lines_cleared;    /**< Total lines cleared */
+    Uint32 total_linesclr;    /**< Total lines cleared */
     bool B2B;                 /**< Back-to-back Tetris/T-Spin flag */
 
     TetrominoType currentType;      /**< Active piece type (I/O/T/...) */

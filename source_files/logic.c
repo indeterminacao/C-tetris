@@ -132,6 +132,7 @@ void resolve_lock(struct Game *game) {
     lock_piece(game);
 
     uint8_t lines = clear_lines(game);
+    update_score(game, lines, tspin);
 
     if (tspin == TSPIN_NORMAL) {
         if (lines == 0) printf("T-Spin Zero!\n"); 
@@ -147,14 +148,12 @@ void resolve_lock(struct Game *game) {
     game->last_move_was_rotate = false;
 }
 
-void update_score(struct Game *game, uint8_t lines_cleared, TSpinType tspin, bool b2b) {
+void update_score(struct Game *game, uint8_t lines_cleared, TSpinType tspin) {
     Uint32 points = 0;
-    float multiplier = 1.0;
-        if (b2b){
-        multiplier = 1.5;
-    }
+    bool hard_move = false;
 
     if (tspin == TSPIN_NORMAL) {
+        hard_move = true;
         switch (lines_cleared) {
             case 0: points = 400; break; 
             case 1: points = 800; break; 
@@ -168,12 +167,28 @@ void update_score(struct Game *game, uint8_t lines_cleared, TSpinType tspin, boo
             case 3: points = 500; break; 
             case 4: 
                 points = 800; 
-                game->B2B = true;
+                hard_move = true;
             break; 
         }
     }
-    game->score += (points * (game->level + 1)) * multiplier; 
-    
+if (hard_move) {
+        if (game->B2B) {
+            points = (points * 3) / 2; 
+            printf("BACK-TO-BACK! \n"); 
+        }
+        game->B2B = true; 
+    } 
+    else if (lines_cleared > 0) {
+        game->B2B = false; 
+    }
+    game->score += points * game->level;
+    printf("SCORE: %d\n", game->score);
+
+    game->total_linesclr += lines_cleared;
+    if (game->total_linesclr >= game->level * 10) {
+        game->level++;
+        printf("LEVEL UP! %d\n", game->level);
+    }
 }
 
 void spin(struct Game *game, int direction) {

@@ -1,13 +1,14 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Wshadow -g -fsanitize=address -I header_files -I .
-
 LIBS = -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 
 SRC = $(wildcard source_files/*.c) main.c
 OBJ = game_linux
 
-all:
+all: $(OBJ)
+
+$(OBJ): $(SRC)
 	$(CC) $(SRC) $(CFLAGS) $(LIBS) -o $(OBJ)
 
-run: game_linux
-	LSAN_OPTIONS=suppressions=asan.supp ./game_linux
+run: $(OBJ)
+	LSAN_OPTIONS=suppressions=asan.supp ./$(OBJ)
