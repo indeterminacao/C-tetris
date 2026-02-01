@@ -9,4 +9,6 @@ struct Game;
  */
 void event_handling(struct Game *game);
 
+void input_update(struct Game *game);
+
 #endif

@@ -52,9 +52,14 @@ void spawn_piece(struct Game *game) {
     game->currentX = (BOARD_WIDTH / 2) - 2; 
     game->currentY = 0; 
     game->lock_resets = 15;
-    
     game->active_piece = true;
+    game->gravity_timer = game->current_tick;
+    game->input.DAS_timer = 0;
+    game->input.ARR_timer = 0;
+    game->input.soft_drop_timer = 0;
     game->last_move_was_rotate = false; 
+    game->input.move_dir = MOVE_NONE;
+    game->input.soft_dropping = false;
 
     if (check_collision(game, game->currentX, game->currentY, game->currentRotation)) {
         printf("GAME OVER\n");
@@ -243,5 +248,5 @@ void hard_drop(struct Game *game){
     }
     resolve_lock(game);
 
-    game->last_tick = SDL_GetTicks();
+    game->gravity_timer = SDL_GetTicks();
 }

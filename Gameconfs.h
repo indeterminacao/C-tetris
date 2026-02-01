@@ -37,6 +37,11 @@
 #define GAME_OFFSET_X (BLOCK_SIZE * (WALL_THICKNESS + HOLD_PANEL_WIDTH))
 /** @} */
 
+// Input timing (milliseconds)
+#define DAS_TIME        150
+#define ARR_TIME         33
+#define SOFT_DROP_ARR    16   /**< ~60Hz soft drop */
+
 /**
  * @brief High-level game states
  */
@@ -46,6 +51,26 @@ typedef enum {
     STATE_LEADERBOARD, /**< Leaderboard / scores */
     STATE_OPTIONS      /**< Options / settings */
 } GameState;
+
+typedef enum {
+    MOVE_NONE,
+    MOVE_LEFT,
+    MOVE_RIGHT
+} MoveDirection;
+typedef struct {
+    // --- Raw input ---
+    const Uint8 *keystate;
+
+    // --- Horizontal movement (DAS / ARR) ---
+    MoveDirection move_dir;
+    Uint32 DAS_timer;          /**< When horizontal key was pressed */
+    Uint32 ARR_timer;          /**< Last horizontal repeat */
+
+    // --- Soft Drop ---
+    bool soft_dropping;
+    Uint32 soft_drop_timer;    /**< Last soft drop step */
+
+} InputState;
 
 /**
  * @brief Main game state structure 
@@ -62,9 +87,10 @@ struct Game {
     uint8_t grid[TOTAL_ROWS][BOARD_WIDTH]; /**< Board grid: 0=empty, >0=piece_id+1 */
 
     // --- Timing & Physics ---
-    Uint32 current_tick;      /**< Current SDL tick */
-    Uint32 last_tick;         /**< Last tick when gravity advanced */
-    int drop_speed;           /**< Gravity: Milliseconds per automatic drop */
+    Uint32 current_tick;          /**< Current SDL tick (global timing) */
+    //Gravity
+    Uint32 gravity_timer;         /**< Last gravity step tick */
+    Uint32 gravity_delay;         /**< ms per automatic fall */
     
     // --- Lock Delay Mechanics ---
     Uint32 lock_delay;        /**< Time (ms) before locking a piece */
@@ -91,6 +117,7 @@ struct Game {
     SDL_Rect btn_play;        /**< Menu: Play button area */
     SDL_Rect btn_leaderboard; /**< Menu: Leaderboard button area */
     SDL_Rect btn_options;     /**< Menu: Options button area */
+    InputState input;         /**< Current input state */
 };
 
 #endif

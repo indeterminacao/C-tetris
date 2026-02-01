@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
         .currentRotation = 0,    
         .currentX = (BOARD_WIDTH / 2) - 2,
         .currentY = 0,            
-        .drop_speed = 500,
+        .gravity_delay = 500,
         .lock_delay = 500,
         .btn_play = {SCREEN_WIDTH/2 - 100, 150, 200, 50},
         .btn_leaderboard = {SCREEN_WIDTH/2 - 100, 250, 200, 50},
@@ -33,7 +33,8 @@ int main(int argc, char *argv[]) {
         .lock_timer = 0,
         .is_locking = false,
         .lock_resets = 15,
-        .level = 1
+        .level = 1,
+        .input.keystate = SDL_GetKeyboardState(NULL)
     };
 
     for(int y=0; y<TOTAL_ROWS; y++) {
@@ -59,6 +60,7 @@ int main(int argc, char *argv[]) {
         }
 
         event_handling(&game);
+        input_update(&game);
 
     if (game.state == STATE_GAME && game.active_piece) { 
                 
@@ -66,11 +68,12 @@ int main(int argc, char *argv[]) {
 
         if (!on_ground) {
             game.is_locking = false;
-
-            if(game.current_tick > game.last_tick + game.drop_speed){
-                    game.currentY += 1;
-                    game.last_move_was_rotate = false;
-                    game.last_tick = game.current_tick;
+            if(!game.input.soft_dropping){
+                if(game.current_tick > game.gravity_timer + game.gravity_delay){
+                        game.currentY += 1;
+                        game.last_move_was_rotate = false;
+                        game.gravity_timer = game.current_tick;
+                    }
                 }
             } else {
                 if (!game.is_locking) {
