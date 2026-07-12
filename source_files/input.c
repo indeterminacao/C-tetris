@@ -100,19 +100,25 @@ static void keydown_inputs(struct Game *game, SDL_Event event){
                 break;
 
             case SDL_SCANCODE_DOWN:
+                if(event.key.repeat == 0){
                     game->input.soft_dropping = true;
                     soft_drop(game);
                     game->input.soft_drop_timer = SDL_GetTicks();
+                }
                 break;
 
             case SDL_SCANCODE_UP: 
             case SDL_SCANCODE_X:
+                if(event.key.repeat == 0){
                     try_rotate(game, 1);
+                }
                 break;
 
             case SDL_SCANCODE_Z:
             case SDL_SCANCODE_LCTRL:
+                if(event.key.repeat == 0){
                     try_rotate(game, -1);
+                }
                 break;
 
             case SDL_SCANCODE_SPACE:
@@ -165,6 +171,9 @@ static void mouse_inputs(struct Game *game, SDL_Event event) {
 }
 
 static void move_left(struct Game *game){
+    if (!game->active_piece) {
+        return;
+    }
     if (!check_collision(game, game->currentX - 1, game->currentY, game->currentRotation)) {
         game->currentX -= 1;
         game->last_move_was_rotate = false;
@@ -173,6 +182,9 @@ static void move_left(struct Game *game){
 }
 
 static void move_right(struct Game *game) {
+    if (!game->active_piece) {
+        return;
+    }
     if (!check_collision(game, game->currentX + 1, game->currentY, game->currentRotation)) {
         game->currentX += 1;
         game->last_move_was_rotate = false;
@@ -181,6 +193,9 @@ static void move_right(struct Game *game) {
 }
 
 static void soft_drop(struct Game *game){
+    if (!game->active_piece) {
+        return;
+    }
     if (!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)) {
         game->currentY += 1;
         game->last_move_was_rotate = false;
@@ -188,6 +203,9 @@ static void soft_drop(struct Game *game){
 }
 
 static void try_rotate(struct Game *game, int direction) {
+    if (!game->active_piece) {
+        return;
+    }
     Rotation orot = game->currentRotation;
     spin(game, direction);
 
