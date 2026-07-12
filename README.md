@@ -15,7 +15,7 @@ This project relies on the **SDL2** library. Since binary files are excluded fro
 
 ---
 
-### 🪟 Setup for Windows (MinGW)
+### Setup for Windows (MinGW)
 
 1.  **Download SDL2:**
     -   Go to the [SDL GitHub Releases](https://github.com/libsdl-org/SDL/releases).
@@ -36,13 +36,14 @@ This project relies on the **SDL2** library. Since binary files are excluded fro
 
 ---
 
-### 🐧 Setup for Linux / WSL
+### Setup for Linux / WSL
 
 1.  **Install SDL2:**
     ```bash
     sudo apt-get update
-    sudo apt-get install libsdl2-dev
+    sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
     ```
+    (image/ttf/mixer are linked in Makefile.linux ahead of planned text, image, and sound features.)
 
 2.  **Compile & Run (Using Makefile - Recommended):**
     This project includes a Makefile configured for Linux/WSL.
@@ -52,7 +53,7 @@ This project relies on the **SDL2** library. Since binary files are excluded fro
 
     *Alternatively, strictly manual compilation:*
     ```bash
-    gcc source_files/*.c -o game_linux -lSDL2 -lm
+    gcc source_files/*.c main.c -I header_files -I . -o game_linux -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lm
     ./game_linux
     ```
 

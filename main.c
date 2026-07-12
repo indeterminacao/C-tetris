@@ -8,13 +8,12 @@
 #include "header_files/logic.h"
 
 // TODO: Game Loop - Implement Leveling system (increase gravity speed based on cleared lines)
-// TODO: UI/Logic - Scoring system (calculate points based on lines, level and drop type)
-// TODO: Polish - Ghost Piece (visual aid for hard drop)
+// TODO: UI/Logic - Scoring system (award bonus points for drop type: soft/hard drop)
 
 int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 
     struct Game game = {
         .ProgramOn = true,
@@ -53,8 +52,9 @@ int main(int argc, char *argv[]) {
         if (game.state == STATE_GAME && !game.active_piece) {
             spawn_piece(&game);
 
-            if (check_collision(&game, game.currentX, game.currentY, game.currentRotation)) {
-                printf("GAME OVER!\n");
+            // spawn_piece() already checked for collision and printed
+            // "GAME OVER" if the new piece could not be placed.
+            if (!game.active_piece) {
                 game.ProgramOn = false;
             }
         }

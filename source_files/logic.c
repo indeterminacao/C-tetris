@@ -25,7 +25,7 @@ bool check_collision(struct Game *game, int grid_x, int grid_y, Rotation rot) {
     return false;
 }
 
-bool is_blocked(struct Game *game, int x, int y) {
+static bool is_blocked(struct Game *game, int x, int y) {
     if (x < 0 || x >= BOARD_WIDTH) return true; 
     if (y >= TOTAL_ROWS) return true;        
     if (y < 0) return false;                    
@@ -46,8 +46,32 @@ void EPLD(struct Game *game) {
     }
 }
 
+/** @brief Returns the next piece from a shuffled 7-bag.
+ * Guarantees every tetromino type appears exactly once every 7 spawns,
+ * avoiding the long droughts or streaks that plain rand() % 7 can produce.
+ */
+static TetrominoType next_bag_piece(void) {
+    static TetrominoType bag[TETROMINO_C];
+    static int bag_index = TETROMINO_C; 
+
+    if (bag_index >= TETROMINO_C) {
+        for (int i = 0; i < TETROMINO_C; i++) {
+            bag[i] = (TetrominoType)i;
+        }
+        for (int i = TETROMINO_C - 1; i > 0; i--) {
+            int j = rand() % (i + 1);
+            TetrominoType tmp = bag[i];
+            bag[i] = bag[j];
+            bag[j] = tmp;
+        }
+        bag_index = 0;
+    }
+
+    return bag[bag_index++];
+}
+
 void spawn_piece(struct Game *game) {
-    game->currentType = rand() % 7; 
+    game->currentType = next_bag_piece(); 
     game->currentRotation = ROT_0; 
     game->currentX = (BOARD_WIDTH / 2) - 2; 
     game->currentY = 0; 
@@ -75,7 +99,7 @@ void lock_piece(struct Game *game) {
                 int board_y = game->currentY + py;
 
                 if(board_y >= 0 && board_y < TOTAL_ROWS && board_x >= 0 && board_x < BOARD_WIDTH){
-                    game->grid[board_y][board_x] = game->currentType + 1; 
+                    game->grid[board_y][board_x] = (uint8_t)(game->currentType + 1); 
                 }
             }
         }
@@ -194,12 +218,12 @@ if (hard_move) {
         game->B2B = false; 
     }
     game->score += points * game->level;
-    printf("SCORE: %d\n", game->score);
+    printf("SCORE: %u\n", game->score);
 
     game->total_linesclr += lines_cleared;
     if (game->total_linesclr >= game->level * 10) {
         game->level++;
-        printf("LEVEL UP! %d\n", game->level);
+        printf("LEVEL UP! %u\n", game->level);
     }
 }
 
@@ -241,6 +265,9 @@ void spin(struct Game *game, int direction) {
 }
 
 void hard_drop(struct Game *game){
+    if (!game->active_piece) {
+        return;
+    }
     game->last_move_was_rotate = false; 
 
     while(!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)){
