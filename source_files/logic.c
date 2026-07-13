@@ -131,7 +131,7 @@ void hold_piece(struct Game *game){
     }
     if(game->held_piece == NONE){
         game->held_piece = game->currentType;
-        activate_current_piece(game);
+        spawn_piece(game);
     } else{
         TetrominoType tmp = game->held_piece;
         game->held_piece = game->currentType;
