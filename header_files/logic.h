@@ -67,6 +67,7 @@ void hard_drop(struct Game *game);
 * @param game Pointer to the main Game struct
 */
 void EPLD(struct Game *game);
+void hold_piece(struct Game *game);
 
 
 

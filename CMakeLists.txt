@@ -9,6 +9,11 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
+# On Windows, point find_package(SDL2) at this project's own lib/ folder
+# (see README for setup). On Linux, libsdl2-dev already installs its own
+# config into a system path CMake finds automatically -- left untouched
+# here, since the bundled Windows config expects a project-root bin/
+# folder that has no equivalent on Linux.
 if(WIN32)
     list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}")
 endif()
@@ -33,12 +38,16 @@ if(WARNINGS_AS_ERRORS)
     target_compile_options(ctetris PRIVATE -Werror)
 endif()
 
+# Classic (non -w64) MinGW does not ship libasan, so default this off on
+# Windows; on by default everywhere else.
 option(ENABLE_ASAN "Build with AddressSanitizer" ${UNIX})
 if(ENABLE_ASAN)
     target_compile_options(ctetris PRIVATE -fsanitize=address -g)
     target_link_options(ctetris PRIVATE -fsanitize=address)
 endif()
 
+# SDL2.dll lives in bin/ (see README) -- copy it next to the built exe so
+# `cmake --build build` produces something runnable without a manual step.
 if(WIN32)
     add_custom_command(TARGET ctetris POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -46,6 +55,8 @@ if(WIN32)
     )
 endif()
 
+# cmake --build build --target run
+# Runs the game with the LeakSanitizer suppressions in asan.supp applied.
 add_custom_target(run
     COMMAND ${CMAKE_COMMAND} -E env LSAN_OPTIONS=suppressions=${CMAKE_SOURCE_DIR}/asan.supp $<TARGET_FILE:ctetris>
     DEPENDS ctetris

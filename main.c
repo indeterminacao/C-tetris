@@ -33,7 +33,9 @@ int main(int argc, char *argv[]) {
         .is_locking = false,
         .lock_resets = 15,
         .level = 1,
-        .input.keystate = SDL_GetKeyboardState(NULL)
+        .input.keystate = SDL_GetKeyboardState(NULL),
+        .held_piece = NONE,
+        .hold_used = false
     };
 
     for(int y=0; y<TOTAL_ROWS; y++) {
@@ -52,8 +54,6 @@ int main(int argc, char *argv[]) {
         if (game.state == STATE_GAME && !game.active_piece) {
             spawn_piece(&game);
 
-            // spawn_piece() already checked for collision and printed
-            // "GAME OVER" if the new piece could not be placed.
             if (!game.active_piece) {
                 game.ProgramOn = false;
             }
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
                 }
             } else {
                 if (!game.is_locking) {
-                    game.lock_timer = SDL_GetTicks();
+                    game.lock_timer = game.current_tick;
                     game.is_locking = true;
                     }
                 if (game.current_tick > game.lock_timer + game.lock_delay || game.lock_resets <= 0) {

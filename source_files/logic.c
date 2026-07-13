@@ -1,6 +1,13 @@
 #include "../header_files/logic.h"
 #include "../header_files/table.h"
 
+static bool is_blocked(struct Game *game, int x, int y) {
+    if (x < 0 || x >= BOARD_WIDTH) return true; 
+    if (y >= TOTAL_ROWS) return true;        
+    if (y < 0) return false;                    
+    return game->grid[y][x] != 0;
+}
+
 bool check_collision(struct Game *game, int grid_x, int grid_y, Rotation rot) {
     for(int py = 0; py < 4; py++){
         for(int px = 0; px < 4; px++){
@@ -23,27 +30,6 @@ bool check_collision(struct Game *game, int grid_x, int grid_y, Rotation rot) {
         }
     }
     return false;
-}
-
-static bool is_blocked(struct Game *game, int x, int y) {
-    if (x < 0 || x >= BOARD_WIDTH) return true; 
-    if (y >= TOTAL_ROWS) return true;        
-    if (y < 0) return false;                    
-    return game->grid[y][x] != 0;
-}
-
-void EPLD(struct Game *game) {
-    if (!check_collision(game,
-            game->currentX,
-            game->currentY + 1,
-            game->currentRotation)) {
-        return;
-    }
-
-    if (game->lock_resets > 0) {
-        game->lock_resets--;
-        game->lock_timer = SDL_GetTicks();
-    }
 }
 
 /** @brief Returns the next piece from a shuffled 7-bag.
@@ -70,8 +56,7 @@ static TetrominoType next_bag_piece(void) {
     return bag[bag_index++];
 }
 
-void spawn_piece(struct Game *game) {
-    game->currentType = next_bag_piece(); 
+static void initialize_piece_state(struct Game *game){
     game->currentRotation = ROT_0; 
     game->currentX = (BOARD_WIDTH / 2) - 2; 
     game->currentY = 0; 
@@ -84,11 +69,92 @@ void spawn_piece(struct Game *game) {
     game->last_move_was_rotate = false; 
     game->input.move_dir = MOVE_NONE;
     game->input.soft_dropping = false;
+}
 
+static void check_spawn_collision(struct Game *game){
     if (check_collision(game, game->currentX, game->currentY, game->currentRotation)) {
         printf("GAME OVER\n");
         game->active_piece = false;
     }
+}
+
+static void activate_current_piece(struct Game *game){
+    initialize_piece_state(game);
+    check_spawn_collision(game);
+}
+
+void spawn_piece(struct Game *game) {
+    game->currentType = next_bag_piece(); 
+    activate_current_piece(game);
+}
+
+void spin(struct Game *game, int direction) {
+    Rotation current_rot = game->currentRotation;
+    Rotation next_rot;
+    
+    if (direction == 1) {
+        next_rot = (current_rot + 1) % 4;
+    } else if (direction == -1) {
+        next_rot = (current_rot + 3) % 4;
+    } else {
+        return; 
+    }
+
+    const Point (*kicks)[4][4][5];
+
+    if(game->currentType == O) {
+        return;
+    } else if (game->currentType == I) {
+        kicks = &kicks_i;
+    } else {
+        kicks = &kicks_jlstz;
+    }
+
+    for (int i = 0; i < 5; i++) {
+        Point test = (*kicks)[current_rot][next_rot][i];
+        int new_x = game->currentX + test.x;
+        int new_y = game->currentY + test.y;
+
+        if (!check_collision(game, new_x, new_y, next_rot)) {
+            game->currentX = new_x;
+            game->currentY = new_y;
+            game->currentRotation = next_rot;
+            game->last_move_was_rotate = true; 
+            return; 
+        }
+    }
+}
+
+void hold_piece(struct Game *game){
+    if(game->hold_used || !game->active_piece){
+        return;
+    }
+    if(game->held_piece == NONE){
+        game->held_piece = game->currentType;
+        activate_current_piece(game);
+    } else{
+        TetrominoType tmp = game->held_piece;
+        game->held_piece = game->currentType;
+        game->currentType = tmp;
+        activate_current_piece(game);
+    }
+    if(game->active_piece){
+        game->hold_used = true;
+    }
+}
+
+void hard_drop(struct Game *game){
+    if (!game->active_piece) {
+        return;
+    }
+    game->last_move_was_rotate = false; 
+
+    while(!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)){
+        game->currentY += 1;
+    }
+    resolve_lock(game);
+
+    game->gravity_timer = game->current_tick;
 }
 
 void lock_piece(struct Game *game) {
@@ -182,6 +248,7 @@ void resolve_lock(struct Game *game) {
 
     game->active_piece = false;
     game->last_move_was_rotate = false;
+    game->hold_used = false;
 }
 
 void update_score(struct Game *game, uint8_t lines_cleared, TSpinType tspin) {
@@ -227,53 +294,16 @@ if (hard_move) {
     }
 }
 
-void spin(struct Game *game, int direction) {
-    Rotation current_rot = game->currentRotation;
-    Rotation next_rot;
-    
-    if (direction == 1) {
-        next_rot = (current_rot + 1) % 4;
-    } else if (direction == -1) {
-        next_rot = (current_rot + 3) % 4;
-    } else {
-        return; 
-    }
-
-    const Point (*kicks)[4][4][5];
-
-    if(game->currentType == O) {
-        return;
-    } else if (game->currentType == I) {
-        kicks = &kicks_i;
-    } else {
-        kicks = &kicks_jlstz;
-    }
-
-    for (int i = 0; i < 5; i++) {
-        Point test = (*kicks)[current_rot][next_rot][i];
-        int new_x = game->currentX + test.x;
-        int new_y = game->currentY + test.y;
-
-        if (!check_collision(game, new_x, new_y, next_rot)) {
-            game->currentX = new_x;
-            game->currentY = new_y;
-            game->currentRotation = next_rot;
-            game->last_move_was_rotate = true; 
-            return; 
-        }
-    }
-}
-
-void hard_drop(struct Game *game){
-    if (!game->active_piece) {
+void EPLD(struct Game *game) {
+    if (!check_collision(game,
+            game->currentX,
+            game->currentY + 1,
+            game->currentRotation)) {
         return;
     }
-    game->last_move_was_rotate = false; 
 
-    while(!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)){
-        game->currentY += 1;
+    if (game->lock_resets > 0) {
+        game->lock_resets--;
+        game->lock_timer = game->current_tick;
     }
-    resolve_lock(game);
-
-    game->gravity_timer = SDL_GetTicks();
 }

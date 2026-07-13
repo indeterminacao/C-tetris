@@ -10,8 +10,10 @@
 /** @brief Tetromino shape identifier
 * Used to index into TETROMINOS and TETROMINO_COLORS
 * G does not represent a real tetromino, but is used for the ghost piece color
+* NONE represents the absence of a tetromino, this type is used for the hold mechanic
 */
 typedef enum {
+    NONE = -1,
     I = 0,
     O = 1,
     T = 2,

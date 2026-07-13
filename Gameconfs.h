@@ -105,6 +105,8 @@ struct Game {
     int currentX;                /**< Board X position */
     int currentY;                /**< Board Y position */
     bool last_move_was_rotate;   /**< For T-Spin detection. Resets on move/tick. */
+    bool hold_used;
+    TetrominoType held_piece;
 
     // --- Scoring & Progression ---
     Uint32 score;             /**< Current score */

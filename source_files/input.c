@@ -44,7 +44,7 @@ void event_handling(struct Game *game){
 }
 
 void input_update(struct Game *game){
-    Uint32 now = SDL_GetTicks();
+    Uint32 now = game->current_tick;
 
     // Handle DAS and ARR for horizontal movement
     if (game->input.move_dir != MOVE_NONE) {
@@ -84,8 +84,8 @@ static void keydown_inputs(struct Game *game, SDL_Event event){
             case SDL_SCANCODE_LEFT:
                 if(event.key.repeat == 0){
                     game->input.move_dir = MOVE_LEFT;
-                    game->input.DAS_timer = SDL_GetTicks();
-                    game->input.ARR_timer = SDL_GetTicks();
+                    game->input.DAS_timer = game->current_tick;
+                    game->input.ARR_timer = game->current_tick;
                     move_left(game);
                 }
                 break;
@@ -93,8 +93,8 @@ static void keydown_inputs(struct Game *game, SDL_Event event){
             case SDL_SCANCODE_RIGHT:
                 if(event.key.repeat == 0){
                     game->input.move_dir = MOVE_RIGHT;
-                    game->input.DAS_timer = SDL_GetTicks();
-                    game->input.ARR_timer = SDL_GetTicks();
+                    game->input.DAS_timer = game->current_tick;
+                    game->input.ARR_timer = game->current_tick;
                     move_right(game);
                 }
                 break;
@@ -103,7 +103,7 @@ static void keydown_inputs(struct Game *game, SDL_Event event){
                 if(event.key.repeat == 0){
                     game->input.soft_dropping = true;
                     soft_drop(game);
-                    game->input.soft_drop_timer = SDL_GetTicks();
+                    game->input.soft_drop_timer = game->current_tick;
                 }
                 break;
 
@@ -126,7 +126,11 @@ static void keydown_inputs(struct Game *game, SDL_Event event){
                     hard_drop(game);
                 }
                 break;
-                
+            case SDL_SCANCODE_C:
+                if(event.key.repeat == 0){
+                    hold_piece(game);
+                }
+                break;
             default: 
                 break;
         }
