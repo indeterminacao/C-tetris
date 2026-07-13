@@ -22,6 +22,7 @@
 *.lo
 /lib/
 /include/
+/bin/
 
 # --- Shared objects / DLLs ---
 *.dll
@@ -36,6 +37,13 @@
 *.hex
 game_linux
 game_windows.exe
+ctetris
+
+# --- CMake ---
+/build/
+CMakeCache.txt
+CMakeFiles/
+compile_commands.json
 
 # --- Debug files ---
 *.dSYM/
