@@ -6,9 +6,22 @@
 #include "header_files/input.h"
 #include "header_files/draw.h"
 #include "header_files/logic.h"
+#include "../header_files/screens/menu.h"
+#include "../header_files/screens/game.h"
+#include "../header_files/screens/leaderboard.h"
+#include "../header_files/screens/options.h"
 
-// TODO: Game Loop - Implement Leveling system (increase gravity speed based on cleared lines)
-// TODO: UI/Logic - Scoring system (award bonus points for drop type: soft/hard drop)
+/**
+ * TODO (Architecture Refactoring)
+ *
+ * [X] Game State Management
+ * [ ] Header Organization (split Gameconfs.h)
+ * [ ] Configurable Settings (DAS, ARR, Soft Drop, Gravity, etc.)
+ * [ ] Internal Code Organization
+ *      - Function names
+ *      - Variable names
+ *      - Function responsibilities
+ */
 
 int main(int argc, char *argv[]) {
     (void)argc;
@@ -51,56 +64,39 @@ int main(int argc, char *argv[]) {
     while(game.ProgramOn){
         game.current_tick = SDL_GetTicks();
 
-        if (game.state == STATE_GAME && !game.active_piece) {
-            spawn_piece(&game);
-
-            if (!game.active_piece) {
-                game.ProgramOn = false;
-            }
-        }
-
         event_handling(&game);
-        input_update(&game);
 
-    if (game.state == STATE_GAME && game.active_piece) { 
-                
-        bool on_ground = check_collision(&game, game.currentX, game.currentY + 1, game.currentRotation);
-
-        if (!on_ground) {
-            game.is_locking = false;
-            if(!game.input.soft_dropping){
-                if(game.current_tick > game.gravity_timer + game.gravity_delay){
-                        game.currentY += 1;
-                        game.last_move_was_rotate = false;
-                        game.gravity_timer = game.current_tick;
-                    }
-                }
-            } else {
-                if (!game.is_locking) {
-                    game.lock_timer = game.current_tick;
-                    game.is_locking = true;
-                    }
-                if (game.current_tick > game.lock_timer + game.lock_delay || game.lock_resets <= 0) {
-                    resolve_lock(&game);
-                    game.is_locking = false; 
-                    }
-                }
-            }
+        switch (game.state) {
+            case STATE_MENU:
+                menu_update(&game);
+                break;
+            case STATE_GAME:
+                game_screen_update(&game);
+                break;
+            case STATE_LEADERBOARD:
+                leaderboard_update(&game);
+                break;
+            case STATE_OPTIONS:
+                options_update(&game);
+                break;
+        }
 
         SDL_SetRenderDrawColor(game.renderer, 20, 20, 20, 255);
         SDL_RenderClear(game.renderer);
 
-        if (game.state == STATE_MENU) {
-            draw_menu(&game);    
-
-        } else if (game.state == STATE_GAME) {
-            draw_layout(&game);  
-            draw_grid(&game);
-
-            if (game.active_piece) {
-                draw_ghost(&game);
-                draw_tetro(game.renderer, game.currentType, game.currentRotation, game.currentX, game.currentY);
-            }
+        switch (game.state) {
+            case STATE_MENU:
+                menu_render(&game);
+                break;
+            case STATE_GAME:
+                game_screen_render(&game);
+                break;
+            case STATE_LEADERBOARD:
+                leaderboard_render(&game);
+                break;
+            case STATE_OPTIONS:
+                options_render(&game);
+                break;
         }
 
         SDL_RenderPresent(game.renderer);

@@ -20,7 +20,7 @@ endif()
 
 find_package(SDL2 REQUIRED CONFIG)
 
-file(GLOB GAME_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/source_files/*.c")
+file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/source_files/*.c")
 
 add_executable(ctetris main.c ${GAME_SOURCES})
 
