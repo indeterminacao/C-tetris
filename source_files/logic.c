@@ -275,22 +275,22 @@ void update_score(struct Game *game, uint8_t lines_cleared, TSpinType tspin) {
         }
     }
 if (hard_move) {
-        if (game->B2B) {
+        if (game->score.back_to_back) {
             points = (points * 3) / 2; 
             printf("BACK-TO-BACK! \n"); 
         }
-        game->B2B = true; 
+        game->score.back_to_back = true; 
     } 
     else if (lines_cleared > 0) {
-        game->B2B = false; 
+        game->score.back_to_back = false; 
     }
-    game->score += points * game->level;
-    printf("SCORE: %u\n", game->score);
+    game->score.points += points * game->score.level;
+    printf("SCORE: %u\n", game->score.points);
 
-    game->total_linesclr += lines_cleared;
-    if (game->total_linesclr >= game->level * 10) {
-        game->level++;
-        printf("LEVEL UP! %u\n", game->level);
+    game->score.total_lines += lines_cleared;
+    if (game->score.total_lines >= game->score.level * 10) {
+        game->score.level++;
+        printf("LEVEL UP! %u\n", game->score.level);
     }
 }
 

@@ -9,6 +9,7 @@
 #include "../core/game_types.h"
 #include "../core/game_state.h"
 #include "../core/input_state.h"
+#include "../core/score.h"
 #include "../tetrominos.h"
 
 
@@ -46,13 +47,9 @@ struct Game {
     int currentY;                /**< Board Y position */
     bool last_move_was_rotate;   /**< For T-Spin detection. Resets on move/tick. */
     bool hold_used;
-    TetrominoType held_piece;
+    TetrominoType held_piece;   
 
-    // --- Scoring & Progression ---
-    Uint32 score;             /**< Current score */
-    Uint32 level;             /**< Current difficulty level */
-    Uint32 total_linesclr;    /**< Total lines cleared (for leveling up) */
-    bool B2B;                 /**< Back-to-Back flag (Tetris or T-Spin streak) */
+    ScoreState score;         /**< Current score state */
 
     // --- UI & Inputs ---
     SDL_Rect btn_play;        /**< Menu: Play button area */

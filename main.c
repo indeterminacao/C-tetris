@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
         .lock_timer = 0,
         .is_locking = false,
         .lock_resets = 15,
-        .level = 1,
+        .score.level = 1,
         .input.keystate = SDL_GetKeyboardState(NULL),
         .held_piece = NONE,
         .hold_used = false
