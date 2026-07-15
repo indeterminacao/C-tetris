@@ -11,6 +11,7 @@
 #include "../core/score_state.h"
 #include "../core/piece_state.h"
 #include "../core/physics_state.h"
+#include "../core/input_config.h"
 #include "../tetrominos.h"
 
 
@@ -42,6 +43,7 @@ struct Game {
     SDL_Rect btn_leaderboard; /**< Menu: Leaderboard button area */
     SDL_Rect btn_options;     /**< Menu: Options button area */
     InputState input;         /**< Current input state */
+    InputConfig input_config;
 };
 
 #endif

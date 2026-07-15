@@ -130,8 +130,8 @@ void game_screen_update(struct Game *game) {
 
     // Continuous DAS/ARR horizontal movement
     if (game->input.move_dir != MOVE_NONE) {
-        if (now - game->input.DAS_timer >= DAS_TIME) {
-            if (now - game->input.ARR_timer >= ARR_TIME) {
+        if (now - game->input.DAS_timer >= game->input_config.das_delay) {
+            if (now - game->input.ARR_timer >= game->input_config.arr_delay) {
                 if (game->input.move_dir == MOVE_LEFT) {
                     move_left(game);
                 } else if (game->input.move_dir == MOVE_RIGHT) {
@@ -144,7 +144,7 @@ void game_screen_update(struct Game *game) {
 
     // Continuous soft drop
     if (game->input.soft_dropping) {
-        if (now - game->input.soft_drop_timer >= SOFT_DROP_ARR) {
+        if (now - game->input.soft_drop_timer >= game->input_config.soft_drop_arr) {
             soft_drop(game);
             game->input.soft_drop_timer = now;
         }

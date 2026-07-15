@@ -49,6 +49,9 @@ int main(int argc, char *argv[]) {
         .physics.lock_resets = 15,
         .score.level = 1,
         .input.keystate = SDL_GetKeyboardState(NULL),
+        .input_config.das_delay = DEFAULT_DAS_DELAY,
+        .input_config.arr_delay = DEFAULT_ARR_DELAY,
+        .input_config.soft_drop_arr = DEFAULT_SOFT_DROP_ARR,
         .piece.held_piece = NONE,
         .piece.hold_used = false
     };

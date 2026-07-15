@@ -2,8 +2,8 @@
 #define CORE_TIMING_H
 
 // Input timing (milliseconds)
-#define DAS_TIME        150
-#define ARR_TIME         33
-#define SOFT_DROP_ARR    16   /**< ~60Hz soft drop */
+#define DEFAULT_DAS_DELAY     150
+#define DEFAULT_ARR_DELAY      33
+#define DEFAULT_SOFT_DROP_ARR  16   /**< ~60Hz soft drop */
 
 #endif
