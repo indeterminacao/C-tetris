@@ -4,8 +4,6 @@
 #include "Gameconfs.h"
 #include "header_files/init.h"
 #include "header_files/input.h"
-#include "header_files/draw.h"
-#include "header_files/logic.h"
 #include "../header_files/screens/menu.h"
 #include "../header_files/screens/game.h"
 #include "../header_files/screens/leaderboard.h"
@@ -16,6 +14,7 @@
  *
  * [X] Game State Management
  * [ ] Header Organization (split Gameconfs.h)
+ * --[ ] Move into sub-struct organization
  * [ ] Configurable Settings (DAS, ARR, Soft Drop, Gravity, etc.)
  * [ ] Internal Code Organization
  *      - Function names

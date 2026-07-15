@@ -69,6 +69,4 @@ void hard_drop(struct Game *game);
 void EPLD(struct Game *game);
 void hold_piece(struct Game *game);
 
-
-
 #endif
