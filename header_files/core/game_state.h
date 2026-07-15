@@ -7,10 +7,10 @@
 
 #include "../core/layout.h"
 #include "../core/game_types.h"
-#include "../core/game_state.h"
 #include "../core/input_state.h"
-#include "../core/score.h"
-#include "../core/piece.h"
+#include "../core/score_state.h"
+#include "../core/piece_state.h"
+#include "../core/physics_state.h"
 #include "../tetrominos.h"
 
 
@@ -30,15 +30,7 @@ struct Game {
 
     // --- Timing & Physics ---
     Uint32 current_tick;          /**< Current SDL tick (global timing) */
-    //Gravity
-    Uint32 gravity_timer;         /**< Last gravity step tick */
-    Uint32 gravity_delay;         /**< ms per automatic fall */
-
-    // --- Lock Delay Mechanics ---
-    Uint32 lock_delay;        /**< Time (ms) before locking a piece */
-    Uint32 lock_timer;        /**< Timer accumulator for lock delay */
-    bool is_locking;          /**< Is the piece currently touching the ground? */
-    int lock_resets;          /**< Counter: How many times lock delay was reset (Infinity Rule) */
+    PhysicsState physics;
 
     // --- Active Piece State ---
     PieceState piece;         /**< Current piece state */

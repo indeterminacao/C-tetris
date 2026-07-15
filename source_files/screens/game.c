@@ -162,20 +162,20 @@ void game_screen_update(struct Game *game) {
     // Gravity and lock delay
     bool on_ground = check_collision(game,  game->piece.x,  game->piece.y + 1,  game->piece.rotation);
     if (!on_ground) {
-        game->is_locking = false;
-        if (!game->input.soft_dropping && now > game->gravity_timer + game->gravity_delay) {
+        game->physics.is_locking = false;
+        if (!game->input.soft_dropping && now > game->physics.gravity_timer + game->physics.gravity_delay) {
              game->piece.y += 1;
             game->piece.last_move_was_rotate = false;
-            game->gravity_timer = now;
+            game->physics.gravity_timer = now;
         }
     } else {
-        if (!game->is_locking) {
-            game->lock_timer = now;
-            game->is_locking = true;
+        if (!game->physics.is_locking) {
+            game->physics.lock_timer = now;
+            game->physics.is_locking = true;
         }
-        if (now > game->lock_timer + game->lock_delay || game->lock_resets <= 0) {
+        if (now > game->physics.lock_timer + game->physics.lock_delay || game->physics.lock_resets <= 0) {
             resolve_lock(game);
-            game->is_locking = false;
+            game->physics.is_locking = false;
         }
     }
 }

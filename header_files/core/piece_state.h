@@ -1,5 +1,5 @@
-#ifndef PIECE_H
-#define PIECE_H
+#ifndef CORE_PIECE_STATE_H
+#define CORE_PIECE_STATE_H
 
 #include "../tetrominos.h"
 

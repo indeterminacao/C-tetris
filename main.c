@@ -4,18 +4,21 @@
 #include "Gameconfs.h"
 #include "header_files/init.h"
 #include "header_files/input.h"
-#include "../header_files/screens/menu.h"
-#include "../header_files/screens/game.h"
-#include "../header_files/screens/leaderboard.h"
-#include "../header_files/screens/options.h"
+#include "header_files/screens/menu.h"
+#include "header_files/screens/game.h"
+#include "header_files/screens/leaderboard.h"
+#include "header_files/screens/options.h"
 
 /**
  * TODO (Architecture Refactoring)
  *
  * [X] Game State Management
- * [ ] Header Organization (split Gameconfs.h)
- * --[ ] Move into sub-struct organization
+ * [X] Header Organization (split Gameconfs.h)
  * [ ] Configurable Settings (DAS, ARR, Soft Drop, Gravity, etc.)
+ *     ├── [ ] InputConfig
+       ├── [ ] PhysicsConfig
+       ├── [ ] GameRules
+       └── [ ] WindowConfig (opcional)
  * [ ] Internal Code Organization
  *      - Function names
  *      - Variable names
@@ -34,16 +37,16 @@ int main(int argc, char *argv[]) {
         .piece.rotation = 0,    
         .piece.x = (BOARD_WIDTH / 2) - 2,
         .piece.y = 0,            
-        .gravity_delay = 500,
-        .lock_delay = 500,
+        .physics.gravity_delay = 500,
+        .physics.lock_delay = 500,
         .btn_play = {SCREEN_WIDTH/2 - 100, 150, 200, 50},
         .btn_leaderboard = {SCREEN_WIDTH/2 - 100, 250, 200, 50},
         .btn_options = {SCREEN_WIDTH/2 - 100, 350, 200, 50},
         .piece.active = false,
         .piece.last_move_was_rotate = false,
-        .lock_timer = 0,
-        .is_locking = false,
-        .lock_resets = 15,
+        .physics.lock_timer = 0,
+        .physics.is_locking = false,
+        .physics.lock_resets = 15,
         .score.level = 1,
         .input.keystate = SDL_GetKeyboardState(NULL),
         .piece.held_piece = NONE,

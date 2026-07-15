@@ -58,7 +58,7 @@ TSpinType is_t_spin(struct Game *game);
 * Moves the active piece straight down until it would collide, resets the rotation flag,
 * calls resolve_lock() to place the piece and handle line clears/T-spins, and updates
 * the game's last tick.
-* @pre game->active_piece must be true (an active piece is required)
+* @pre game->piece.active must be true (an active piece is required)
 * @param game Pointer to the main Game struct
 */
 void hard_drop(struct Game *game);

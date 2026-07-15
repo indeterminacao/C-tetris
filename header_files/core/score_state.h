@@ -1,5 +1,5 @@
-#ifndef CORE_SCORE_H
-#define CORE_SCORE_H
+#ifndef CORE_SCORE_STATE_H
+#define CORE_SCORE_STATE_H
 
 #include <stdint.h>
 #include <stdbool.h>

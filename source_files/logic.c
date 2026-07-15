@@ -60,9 +60,9 @@ static void initialize_piece_state(struct Game *game){
     game->piece.rotation = ROT_0; 
     game->piece.x = (BOARD_WIDTH / 2) - 2; 
     game->piece.y = 0; 
-    game->lock_resets = 15;
+    game->physics.lock_resets = 15;
     game->piece.active = true;
-    game->gravity_timer = game->current_tick;
+    game->physics.gravity_timer = game->current_tick;
     game->input.DAS_timer = 0;
     game->input.ARR_timer = 0;
     game->input.soft_drop_timer = 0;
@@ -154,7 +154,7 @@ void hard_drop(struct Game *game){
     }
     resolve_lock(game);
 
-    game->gravity_timer = game->current_tick;
+    game->physics.gravity_timer = game->current_tick;
 }
 
 void lock_piece(struct Game *game) {
@@ -302,8 +302,8 @@ void EPLD(struct Game *game) {
         return;
     }
 
-    if (game->lock_resets > 0) {
-        game->lock_resets--;
-        game->lock_timer = game->current_tick;
+    if (game->physics.lock_resets > 0) {
+        game->physics.lock_resets--;
+        game->physics.lock_timer = game->current_tick;
     }
 }
