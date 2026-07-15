@@ -12,6 +12,7 @@
 #include "../core/piece_state.h"
 #include "../core/physics_state.h"
 #include "../core/input_config.h"
+#include "../core/physics_config.h"
 #include "../tetrominos.h"
 
 
@@ -32,6 +33,7 @@ struct Game {
     // --- Timing & Physics ---
     Uint32 current_tick;          /**< Current SDL tick (global timing) */
     PhysicsState physics;
+    PhysicsConfig physics_config;
 
     // --- Active Piece State ---
     PieceState piece;         /**< Current piece state */

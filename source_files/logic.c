@@ -60,7 +60,7 @@ static void initialize_piece_state(struct Game *game){
     game->piece.rotation = ROT_0; 
     game->piece.x = (BOARD_WIDTH / 2) - 2; 
     game->piece.y = 0; 
-    game->physics.lock_resets = 15;
+    game->physics.lock_resets = game->physics_config.max_lock_resets;
     game->piece.active = true;
     game->physics.gravity_timer = game->current_tick;
     game->input.DAS_timer = 0;
