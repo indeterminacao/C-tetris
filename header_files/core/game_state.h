@@ -10,6 +10,7 @@
 #include "../core/game_state.h"
 #include "../core/input_state.h"
 #include "../core/score.h"
+#include "../core/piece.h"
 #include "../tetrominos.h"
 
 
@@ -40,14 +41,7 @@ struct Game {
     int lock_resets;          /**< Counter: How many times lock delay was reset (Infinity Rule) */
 
     // --- Active Piece State ---
-    bool active_piece;           /**< Is there a piece currently falling? */
-    TetrominoType currentType;   /**< Type of the active piece (I, O, T...) */
-    Rotation currentRotation;    /**< Rotation state (0, 1, 2, 3) */
-    int currentX;                /**< Board X position */
-    int currentY;                /**< Board Y position */
-    bool last_move_was_rotate;   /**< For T-Spin detection. Resets on move/tick. */
-    bool hold_used;
-    TetrominoType held_piece;   
+    PieceState piece;         /**< Current piece state */
 
     ScoreState score;         /**< Current score state */
 

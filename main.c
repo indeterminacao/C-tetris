@@ -30,24 +30,24 @@ int main(int argc, char *argv[]) {
     struct Game game = {
         .ProgramOn = true,
         .state = STATE_MENU,
-        .currentType = T,          
-        .currentRotation = 0,    
-        .currentX = (BOARD_WIDTH / 2) - 2,
-        .currentY = 0,            
+        .piece.type = T,          
+        .piece.rotation = 0,    
+        .piece.x = (BOARD_WIDTH / 2) - 2,
+        .piece.y = 0,            
         .gravity_delay = 500,
         .lock_delay = 500,
         .btn_play = {SCREEN_WIDTH/2 - 100, 150, 200, 50},
         .btn_leaderboard = {SCREEN_WIDTH/2 - 100, 250, 200, 50},
         .btn_options = {SCREEN_WIDTH/2 - 100, 350, 200, 50},
-        .active_piece = false,
-        .last_move_was_rotate = false,
+        .piece.active = false,
+        .piece.last_move_was_rotate = false,
         .lock_timer = 0,
         .is_locking = false,
         .lock_resets = 15,
         .score.level = 1,
         .input.keystate = SDL_GetKeyboardState(NULL),
-        .held_piece = NONE,
-        .hold_used = false
+        .piece.held_piece = NONE,
+        .piece.hold_used = false
     };
 
     for(int y=0; y<TOTAL_ROWS; y++) {

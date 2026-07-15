@@ -157,8 +157,8 @@ void draw_tetro(SDL_Renderer *r,
 //Ghost piece
 
 static int compute_ghost_y(struct Game *game) {
-    int y = game->currentY;
-    while (!check_collision(game, game->currentX, y + 1, game->currentRotation)) {
+    int y = game->piece.y;
+    while (!check_collision(game, game->piece.x, y + 1,  game->piece.rotation)) {
         y++;
     }
     return y;
@@ -174,10 +174,10 @@ void draw_ghost(struct Game *game) {
 
     for (int py = 0; py < 4; py++) {
         for (int px = 0; px < 4; px++) {
-            if (TETROMINOS[game->currentType][game->currentRotation][py][px]) {
+            if (TETROMINOS[ game->piece.type][ game->piece.rotation][py][px]) {
                 draw_block(
                     r,
-                    game->currentX + px,
+                    game->piece.x + px,
                     ghost_y + py,
                     ghost_color
                 );

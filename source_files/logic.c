@@ -11,7 +11,7 @@ static bool is_blocked(struct Game *game, int x, int y) {
 bool check_collision(struct Game *game, int grid_x, int grid_y, Rotation rot) {
     for(int py = 0; py < 4; py++){
         for(int px = 0; px < 4; px++){
-            if(TETROMINOS[game->currentType][rot][py][px] != 0){
+            if(TETROMINOS[game->piece.type][rot][py][px] != 0){
                 int board_x = grid_x + px;
                 int board_y = grid_y + py;
 
@@ -57,24 +57,24 @@ static TetrominoType next_bag_piece(void) {
 }
 
 static void initialize_piece_state(struct Game *game){
-    game->currentRotation = ROT_0; 
-    game->currentX = (BOARD_WIDTH / 2) - 2; 
-    game->currentY = 0; 
+    game->piece.rotation = ROT_0; 
+    game->piece.x = (BOARD_WIDTH / 2) - 2; 
+    game->piece.y = 0; 
     game->lock_resets = 15;
-    game->active_piece = true;
+    game->piece.active = true;
     game->gravity_timer = game->current_tick;
     game->input.DAS_timer = 0;
     game->input.ARR_timer = 0;
     game->input.soft_drop_timer = 0;
-    game->last_move_was_rotate = false; 
+    game->piece.last_move_was_rotate = false; 
     game->input.move_dir = MOVE_NONE;
     game->input.soft_dropping = false;
 }
 
 static void check_spawn_collision(struct Game *game){
-    if (check_collision(game, game->currentX, game->currentY, game->currentRotation)) {
+    if (check_collision(game, game->piece.x, game->piece.y, game->piece.rotation)) {
         printf("GAME OVER\n");
-        game->active_piece = false;
+        game->piece.active = false;
     }
 }
 
@@ -84,12 +84,12 @@ static void activate_current_piece(struct Game *game){
 }
 
 void spawn_piece(struct Game *game) {
-    game->currentType = next_bag_piece(); 
+    game->piece.type = next_bag_piece(); 
     activate_current_piece(game);
 }
 
 void spin(struct Game *game, int direction) {
-    Rotation current_rot = game->currentRotation;
+    Rotation current_rot = game->piece.rotation;
     Rotation next_rot;
     
     if (direction == 1) {
@@ -102,9 +102,9 @@ void spin(struct Game *game, int direction) {
 
     const Point (*kicks)[4][4][5];
 
-    if(game->currentType == O) {
+    if(game->piece.type == O) {
         return;
-    } else if (game->currentType == I) {
+    } else if (game->piece.type == I) {
         kicks = &kicks_i;
     } else {
         kicks = &kicks_jlstz;
@@ -112,45 +112,45 @@ void spin(struct Game *game, int direction) {
 
     for (int i = 0; i < 5; i++) {
         Point test = (*kicks)[current_rot][next_rot][i];
-        int new_x = game->currentX + test.x;
-        int new_y = game->currentY + test.y;
+        int new_x = game->piece.x + test.x;
+        int new_y = game->piece.y + test.y;
 
         if (!check_collision(game, new_x, new_y, next_rot)) {
-            game->currentX = new_x;
-            game->currentY = new_y;
-            game->currentRotation = next_rot;
-            game->last_move_was_rotate = true; 
+            game->piece.x = new_x;
+            game->piece.y = new_y;
+            game->piece.rotation = next_rot;
+            game->piece.last_move_was_rotate = true; 
             return; 
         }
     }
 }
 
 void hold_piece(struct Game *game){
-    if(game->hold_used || !game->active_piece){
+    if(game->piece.hold_used || !game->piece.active){
         return;
     }
-    if(game->held_piece == NONE){
-        game->held_piece = game->currentType;
+    if(game->piece.held_piece == NONE){
+        game->piece.held_piece = game->piece.type;
         spawn_piece(game);
     } else{
-        TetrominoType tmp = game->held_piece;
-        game->held_piece = game->currentType;
-        game->currentType = tmp;
+        TetrominoType tmp = game->piece.held_piece;
+        game->piece.held_piece = game->piece.type;
+        game->piece.type = tmp;
         activate_current_piece(game);
     }
-    if(game->active_piece){
-        game->hold_used = true;
+    if(game->piece.active){
+        game->piece.hold_used = true;
     }
 }
 
 void hard_drop(struct Game *game){
-    if (!game->active_piece) {
+    if (!game->piece.active) {
         return;
     }
-    game->last_move_was_rotate = false; 
+    game->piece.last_move_was_rotate = false; 
 
-    while(!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)){
-        game->currentY += 1;
+    while(!check_collision(game, game->piece.x, game->piece.y + 1, game->piece.rotation)){
+        game->piece.y += 1;
     }
     resolve_lock(game);
 
@@ -160,12 +160,12 @@ void hard_drop(struct Game *game){
 void lock_piece(struct Game *game) {
     for(int py = 0; py < 4; py++){
         for(int px = 0; px < 4; px++){
-            if(TETROMINOS[game->currentType][game->currentRotation][py][px] != 0){
-                int board_x = game->currentX + px;
-                int board_y = game->currentY + py;
+            if(TETROMINOS[game->piece.type][game->piece.rotation][py][px] != 0){
+                int board_x = game->piece.x + px;
+                int board_y = game->piece.y + py;
 
                 if(board_y >= 0 && board_y < TOTAL_ROWS && board_x >= 0 && board_x < BOARD_WIDTH){
-                    game->grid[board_y][board_x] = (uint8_t)(game->currentType + 1); 
+                    game->grid[board_y][board_x] = (uint8_t)(game->piece.type + 1); 
                 }
             }
         }
@@ -199,12 +199,12 @@ uint8_t clear_lines(struct Game *game) {
 }
 
 TSpinType is_t_spin(struct Game *game) {
-    if (game->currentType != T || !game->last_move_was_rotate) {
+    if (game->piece.type != T || !game->piece.last_move_was_rotate) {
         return TSPIN_NONE;
     }
 
-    int center_x = game->currentX + 1;
-    int center_y = game->currentY + 1;
+    int center_x = game->piece.x + 1;
+    int center_y = game->piece.y + 1;
 
     int corners[4][2] = {
         {center_x - 1, center_y - 1}, 
@@ -246,9 +246,9 @@ void resolve_lock(struct Game *game) {
         else printf("Cleared %d lines\n", lines);
     }
 
-    game->active_piece = false;
-    game->last_move_was_rotate = false;
-    game->hold_used = false;
+    game->piece.active = false;
+    game->piece.last_move_was_rotate = false;
+    game->piece.hold_used = false;
 }
 
 void update_score(struct Game *game, uint8_t lines_cleared, TSpinType tspin) {
@@ -296,9 +296,9 @@ if (hard_move) {
 
 void EPLD(struct Game *game) {
     if (!check_collision(game,
-            game->currentX,
-            game->currentY + 1,
-            game->currentRotation)) {
+            game->piece.x,
+            game->piece.y + 1,
+            game->piece.rotation)) {
         return;
     }
 

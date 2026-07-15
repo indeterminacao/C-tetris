@@ -3,45 +3,45 @@
 #include "../../header_files/draw.h"
 
 static void move_left(struct Game *game){
-    if (!game->active_piece) {
+    if (!game->piece.active) {
         return;
     }
-    if (!check_collision(game, game->currentX - 1, game->currentY, game->currentRotation)) {
-        game->currentX -= 1;
-        game->last_move_was_rotate = false;
+    if (!check_collision(game,  game->piece.x - 1,  game->piece.y,  game->piece.rotation)) {
+         game->piece.x -= 1;
+        game->piece.last_move_was_rotate = false;
         EPLD(game);
     }
 }
 
 static void move_right(struct Game *game) {
-    if (!game->active_piece) {
+    if (!game->piece.active) {
         return;
     }
-    if (!check_collision(game, game->currentX + 1, game->currentY, game->currentRotation)) {
-        game->currentX += 1;
-        game->last_move_was_rotate = false;
+    if (!check_collision(game,  game->piece.x + 1,  game->piece.y,  game->piece.rotation)) {
+         game->piece.x += 1;
+        game->piece.last_move_was_rotate = false;
         EPLD(game);
     }
 }
 
 static void soft_drop(struct Game *game){
-    if (!game->active_piece) {
+    if (! game->piece.active) {
         return;
     }
-    if (!check_collision(game, game->currentX, game->currentY + 1, game->currentRotation)) {
-        game->currentY += 1;
-        game->last_move_was_rotate = false;
+    if (!check_collision(game,  game->piece.x,  game->piece.y + 1,  game->piece.rotation)) {
+         game->piece.y += 1;
+        game->piece.last_move_was_rotate = false;
     }
 }
 
 static void try_rotate(struct Game *game, int direction) {
-    if (!game->active_piece) {
+    if (! game->piece.active) {
         return;
     }
-    Rotation orot = game->currentRotation;
+    Rotation orot =  game->piece.rotation;
     spin(game, direction);
 
-    if (game->currentRotation != orot) {
+    if ( game->piece.rotation != orot) {
         EPLD(game);
     }
 }
@@ -151,21 +151,21 @@ void game_screen_update(struct Game *game) {
     }
 
     // Spawn a new piece if none is active
-    if (!game->active_piece) {
+    if (! game->piece.active) {
         spawn_piece(game);
-        if (!game->active_piece) {
+        if (! game->piece.active) {
             game->ProgramOn = false;
         }
         return;
     }
 
     // Gravity and lock delay
-    bool on_ground = check_collision(game, game->currentX, game->currentY + 1, game->currentRotation);
+    bool on_ground = check_collision(game,  game->piece.x,  game->piece.y + 1,  game->piece.rotation);
     if (!on_ground) {
         game->is_locking = false;
         if (!game->input.soft_dropping && now > game->gravity_timer + game->gravity_delay) {
-            game->currentY += 1;
-            game->last_move_was_rotate = false;
+             game->piece.y += 1;
+            game->piece.last_move_was_rotate = false;
             game->gravity_timer = now;
         }
     } else {
@@ -183,8 +183,8 @@ void game_screen_update(struct Game *game) {
 void game_screen_render(struct Game *game) {
     draw_layout(game);
     draw_grid(game);
-    if (game->active_piece) {
+    if ( game->piece.active) {
         draw_ghost(game);
-        draw_tetro(game->renderer, game->currentType, game->currentRotation, game->currentX, game->currentY);
+        draw_tetro(game->renderer, game->piece.type,  game->piece.rotation,  game->piece.x,  game->piece.y);
     }
 }
