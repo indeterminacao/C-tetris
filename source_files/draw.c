@@ -147,26 +147,25 @@ void draw_grid(struct Game *game) {
     }
 }
 
-void draw_tetro(SDL_Renderer *r,
-                TetrominoType type,
-                Rotation rotation,
-                int grid_x,
-                int grid_y)
-{
-    Color color = TETROMINO_COLORS[type];
+static void draw_piece_shape(SDL_Renderer *r, TetrominoType type,
+                            Rotation rotation, int grid_x,
+                            int grid_y, Color color) {
 
     for (int py = 0; py < 4; py++) {
         for (int px = 0; px < 4; px++) {
             if (TETROMINOS[type][rotation][py][px]) {
-                draw_block(
-                    r,
-                    grid_x + px,
-                    grid_y + py,
-                    color
-                );
+                draw_block(r, grid_x + px, grid_y + py, color);
             }
         }
     }
+}
+
+
+void draw_tetro(SDL_Renderer *r, TetrominoType type,
+                Rotation rotation,int grid_x,
+                                int grid_y){
+
+    draw_piece_shape(r, type, rotation, grid_x, grid_y, TETROMINO_COLORS[type]);
 }
 
 //Ghost piece
@@ -184,21 +183,6 @@ void draw_ghost(struct Game *game) {
     int ghost_y = compute_ghost_y(game);
 
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-
-    Color ghost_color = TETROMINO_COLORS[G];
-
-    for (int py = 0; py < 4; py++) {
-        for (int px = 0; px < 4; px++) {
-            if (TETROMINOS[ game->piece.type][ game->piece.rotation][py][px]) {
-                draw_block(
-                    r,
-                    game->piece.x + px,
-                    ghost_y + py,
-                    ghost_color
-                );
-            }
-        }
-    }
-
+    draw_piece_shape(r, game->piece.type, game->piece.rotation, game->piece.x, ghost_y, TETROMINO_COLORS[G]);
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_NONE);
 }
