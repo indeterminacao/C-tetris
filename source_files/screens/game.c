@@ -125,41 +125,41 @@ void game_screen_handle_input(struct Game *game, SDL_Event event) {
     }
 }
 
-void game_screen_update(struct Game *game) {
-    Uint32 now = game->current_tick;
+static void update_das_arr(struct Game *game, Uint32 now) {
+    if (game->input.move_dir == MOVE_NONE) return;
+    if (now - game->input.DAS_timer < game->input_config.das_delay) return;
+    if (now - game->input.ARR_timer < game->input_config.arr_delay) return;
 
-    // Continuous DAS/ARR horizontal movement
-    if (game->input.move_dir != MOVE_NONE) {
-        if (now - game->input.DAS_timer >= game->input_config.das_delay) {
-            if (now - game->input.ARR_timer >= game->input_config.arr_delay) {
-                if (game->input.move_dir == MOVE_LEFT) {
-                    move_left(game);
-                } else if (game->input.move_dir == MOVE_RIGHT) {
-                    move_right(game);
-                }
-                game->input.ARR_timer = now;
-            }
-        }
+    if (game->input.move_dir == MOVE_LEFT) {
+        move_left(game);
+    } else if (game->input.move_dir == MOVE_RIGHT) {
+        move_right(game);
     }
+    game->input.ARR_timer = now;
+}
 
-    // Continuous soft drop
+static void update_soft_drop_repeat(struct Game *game, Uint32 now) {
     if (game->input.soft_dropping) {
         if (now - game->input.soft_drop_timer >= game->input_config.soft_drop_arr) {
             soft_drop(game);
             game->input.soft_drop_timer = now;
         }
     }
+}
 
-    // Spawn a new piece if none is active
-    if (! game->piece.active) {
-        spawn_piece(game);
-        if (! game->piece.active) {
-            game->ProgramOn = false;
-        }
-        return;
+static bool spawn_if_needed(struct Game *game) {
+    if (game->piece.active) {
+        return false;
     }
 
-    // Gravity and lock delay
+    spawn_piece(game);
+    if (!game->piece.active) {
+        game->ProgramOn = false;
+    }
+    return true;
+}
+
+static void update_gravity_and_lock(struct Game *game, Uint32 now){
     bool on_ground = check_collision(game,  game->piece.x,  game->piece.y + 1,  game->piece.rotation);
     if (!on_ground) {
         game->physics.is_locking = false;
@@ -178,6 +178,25 @@ void game_screen_update(struct Game *game) {
             game->physics.is_locking = false;
         }
     }
+}
+
+
+void game_screen_update(struct Game *game) {
+    Uint32 now = game->current_tick;
+
+    // Continuous DAS/ARR horizontal movement
+    update_das_arr(game, now);
+
+    // Continuous soft drop
+    update_soft_drop_repeat(game, now);
+
+    // Spawn a new piece if none is active
+    if(spawn_if_needed(game)){
+        return;
+    }
+
+    // Gravity and lock delay
+    update_gravity_and_lock(game, now);
 }
 
 void game_screen_render(struct Game *game) {

@@ -14,11 +14,7 @@
  *
  * [X] Game State Management
  * [X] Header Organization (split Gameconfs.h)
- * [ ] Configurable Settings (DAS, ARR, Soft Drop, Gravity, etc.)
- *     ├── [ ] InputConfig
-       ├── [ ] PhysicsConfig
-       ├── [ ] GameRules
-       └── [ ] WindowConfig (opcional)
+ * [X] Configurable Settings (DAS, ARR, Soft Drop, Gravity, etc.)
  * [ ] Internal Code Organization
  *      - Function names
  *      - Variable names
