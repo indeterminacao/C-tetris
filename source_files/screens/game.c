@@ -2,23 +2,10 @@
 #include "../../header_files/logic.h"
 #include "../../header_files/draw.h"
 
-static void move_left(struct Game *game){
-    if (!game->piece.active) {
-        return;
-    }
-    if (!check_collision(game,  game->piece.x - 1,  game->piece.y,  game->piece.rotation)) {
-         game->piece.x -= 1;
-        game->piece.last_move_was_rotate = false;
-        EPLD(game);
-    }
-}
-
-static void move_right(struct Game *game) {
-    if (!game->piece.active) {
-        return;
-    }
-    if (!check_collision(game,  game->piece.x + 1,  game->piece.y,  game->piece.rotation)) {
-         game->piece.x += 1;
+static void move_horizontal(struct Game *game, int dx) {
+    if (!game->piece.active) return;
+    if (!check_collision(game, game->piece.x + dx, game->piece.y, game->piece.rotation)) {
+        game->piece.x += dx;
         game->piece.last_move_was_rotate = false;
         EPLD(game);
     }
@@ -48,57 +35,46 @@ static void try_rotate(struct Game *game, int direction) {
 
 void game_screen_handle_input(struct Game *game, SDL_Event event) {
     if (event.type == SDL_KEYDOWN) {
+        if (event.key.repeat != 0) {
+            return;
+        }
         switch (event.key.keysym.scancode) {
             case SDL_SCANCODE_LEFT:
-                if (event.key.repeat == 0) {
                     game->input.move_dir = MOVE_LEFT;
                     game->input.DAS_timer = game->current_tick;
                     game->input.ARR_timer = game->current_tick;
-                    move_left(game);
-                }
+                    move_horizontal(game, -1);
                 break;
 
             case SDL_SCANCODE_RIGHT:
-                if (event.key.repeat == 0) {
                     game->input.move_dir = MOVE_RIGHT;
                     game->input.DAS_timer = game->current_tick;
                     game->input.ARR_timer = game->current_tick;
-                    move_right(game);
-                }
+                    move_horizontal(game, 1);
                 break;
 
             case SDL_SCANCODE_DOWN:
-                if (event.key.repeat == 0) {
                     game->input.soft_dropping = true;
                     soft_drop(game);
                     game->input.soft_drop_timer = game->current_tick;
-                }
                 break;
 
             case SDL_SCANCODE_UP:
             case SDL_SCANCODE_X:
-                if (event.key.repeat == 0) {
                     try_rotate(game, 1);
-                }
                 break;
 
             case SDL_SCANCODE_Z:
             case SDL_SCANCODE_LCTRL:
-                if (event.key.repeat == 0) {
                     try_rotate(game, -1);
-                }
                 break;
 
             case SDL_SCANCODE_SPACE:
-                if (event.key.repeat == 0) {
                     hard_drop(game);
-                }
                 break;
 
             case SDL_SCANCODE_C:
-                if (event.key.repeat == 0) {
                     hold_piece(game);
-                }
                 break;
 
             default:
@@ -131,9 +107,9 @@ static void update_das_arr(struct Game *game, Uint32 now) {
     if (now - game->input.ARR_timer < game->input_config.arr_delay) return;
 
     if (game->input.move_dir == MOVE_LEFT) {
-        move_left(game);
+        move_horizontal(game, -1);
     } else if (game->input.move_dir == MOVE_RIGHT) {
-        move_right(game);
+        move_horizontal(game, 1);
     }
     game->input.ARR_timer = now;
 }
