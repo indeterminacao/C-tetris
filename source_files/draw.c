@@ -75,15 +75,9 @@ void draw_menu(struct Game *game) {
 
 // Layout (walls, floor, hold box)
 
-void draw_layout(struct Game *game) {
-    SDL_Renderer *r = game->renderer;
-    SDL_Rect block = { 0, 0, BLOCK_SIZE, BLOCK_SIZE };
+static void draw_walls(SDL_Rect block, SDL_Renderer *r, 
+                        int left_wall_x, int right_wall_x){
 
-    const int left_wall_x  = GAME_OFFSET_X - BLOCK_SIZE;
-    const int right_wall_x = GAME_OFFSET_X + BOARD_WIDTH * BLOCK_SIZE;
-    const int floor_y      = BOARD_HEIGHT * BLOCK_SIZE;
-
-    // walls
     for (int y = 0; y <= BOARD_HEIGHT; y++) {
         block.y = y * BLOCK_SIZE;
 
@@ -93,15 +87,18 @@ void draw_layout(struct Game *game) {
         block.x = right_wall_x;
         draw_rect(r, &block, COLOR_WALL, COLOR_BORDER);
     }
+}
 
-    //floor
+static void draw_floor(SDL_Rect block, SDL_Renderer *r, int floor_y){
+
     block.y = floor_y;
     for (int x = -1; x <= BOARD_WIDTH; x++) {
         block.x = GAME_OFFSET_X + x * BLOCK_SIZE;
         draw_rect(r, &block, COLOR_WALL, COLOR_BORDER);
     }
+}
 
-    // Hold box
+static void draw_hold_box(SDL_Renderer *r){
     SDL_Rect hold_box = {
         .x = BLOCK_SIZE,
         .y = BLOCK_SIZE * 2,
@@ -112,6 +109,24 @@ void draw_layout(struct Game *game) {
     draw_rect(r, &hold_box,
               (Color){0, 0, 0, 255},
               (Color){255, 255, 255, 255});
+}
+
+void draw_layout(struct Game *game) {
+    SDL_Renderer *r = game->renderer;
+    SDL_Rect block = { 0, 0, BLOCK_SIZE, BLOCK_SIZE };
+
+    const int left_wall_x  = GAME_OFFSET_X - BLOCK_SIZE;
+    const int right_wall_x = GAME_OFFSET_X + BOARD_WIDTH * BLOCK_SIZE;
+    const int floor_y      = BOARD_HEIGHT * BLOCK_SIZE;
+
+    // walls
+    draw_walls(block, r, left_wall_x, right_wall_x);
+
+    //floor
+    draw_floor(block, r, floor_y);
+
+    // Hold box
+    draw_hold_box(r);
 }
 
 // Grid and pieces
