@@ -63,8 +63,8 @@ static void initialize_piece_state(struct Game *game){
     game->physics.lock_resets = game->physics_config.max_lock_resets;
     game->piece.active = true;
     game->physics.gravity_timer = game->current_tick;
-    game->input.DAS_timer = 0;
-    game->input.ARR_timer = 0;
+    game->input.das_timer = 0;
+    game->input.arr_timer = 0;
     game->input.soft_drop_timer = 0;
     game->piece.last_move_was_rotate = false; 
     game->input.move_dir = MOVE_NONE;
@@ -198,7 +198,7 @@ uint8_t clear_lines(struct Game *game) {
     return lines_cleared;
 }
 
-TSpinType is_t_spin(struct Game *game) {
+TSpinType detect_t_spin(struct Game *game) {
     if (game->piece.type != T || !game->piece.last_move_was_rotate) {
         return TSPIN_NONE;
     }
@@ -229,7 +229,7 @@ TSpinType is_t_spin(struct Game *game) {
 }
 
 void resolve_lock(struct Game *game) {
-    TSpinType tspin = is_t_spin(game);
+    TSpinType tspin = detect_t_spin(game);
 
     lock_piece(game);
 
@@ -294,7 +294,7 @@ if (hard_move) {
     }
 }
 
-void EPLD(struct Game *game) {
+void extend_lock_delay(struct Game *game) {
     if (!check_collision(game,
             game->piece.x,
             game->piece.y + 1,

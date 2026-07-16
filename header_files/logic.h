@@ -66,7 +66,7 @@ void hard_drop(struct Game *game);
 /** @brief Extended Placement Lock Down - reduces lock resets, updates lock timer, and prints remaining moves
 * @param game Pointer to the main Game struct
 */
-void EPLD(struct Game *game);
+void extend_lock_delay(struct Game *game);
 void hold_piece(struct Game *game);
 
 #endif

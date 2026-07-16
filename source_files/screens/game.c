@@ -14,7 +14,7 @@ static void move_horizontal(struct Game *game, int dx) {
     if (!check_collision(game, game->piece.x + dx, game->piece.y, game->piece.rotation)) {
         game->piece.x += dx;
         game->piece.last_move_was_rotate = false;
-        EPLD(game);
+        extend_lock_delay(game);
     }
 }
 
@@ -36,7 +36,7 @@ static void try_rotate(struct Game *game, int direction) {
     spin(game, direction);
 
     if ( game->piece.rotation != orot) {
-        EPLD(game);
+        extend_lock_delay(game);
     }
 }
 
@@ -48,15 +48,15 @@ void game_screen_handle_input(struct Game *game, SDL_Event event) {
         switch (event.key.keysym.scancode) {
             case SDL_SCANCODE_LEFT:
                     game->input.move_dir = MOVE_LEFT;
-                    game->input.DAS_timer = game->current_tick;
-                    game->input.ARR_timer = game->current_tick;
+                    game->input.das_timer = game->current_tick;
+                    game->input.arr_timer = game->current_tick;
                     move_horizontal(game, -1);
                 break;
 
             case SDL_SCANCODE_RIGHT:
                     game->input.move_dir = MOVE_RIGHT;
-                    game->input.DAS_timer = game->current_tick;
-                    game->input.ARR_timer = game->current_tick;
+                    game->input.das_timer = game->current_tick;
+                    game->input.arr_timer = game->current_tick;
                     move_horizontal(game, 1);
                 break;
 
@@ -110,15 +110,15 @@ void game_screen_handle_input(struct Game *game, SDL_Event event) {
 
 static void update_das_arr(struct Game *game, Uint32 now) {
     if (game->input.move_dir == MOVE_NONE) return;
-    if (now - game->input.DAS_timer < game->input_config.das_delay) return;
-    if (now - game->input.ARR_timer < game->input_config.arr_delay) return;
+    if (now - game->input.das_timer < game->input_config.das_delay) return;
+    if (now - game->input.arr_timer < game->input_config.arr_delay) return;
 
     if (game->input.move_dir == MOVE_LEFT) {
         move_horizontal(game, -1);
     } else if (game->input.move_dir == MOVE_RIGHT) {
         move_horizontal(game, 1);
     }
-    game->input.ARR_timer = now;
+    game->input.arr_timer = now;
 }
 
 static void update_soft_drop_repeat(struct Game *game, Uint32 now) {

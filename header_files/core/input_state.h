@@ -9,8 +9,8 @@ typedef struct {
 
     // --- Horizontal movement (DAS / ARR) ---
     MoveDirection move_dir;
-    Uint32 DAS_timer;          /**< When horizontal key was pressed */
-    Uint32 ARR_timer;          /**< Last horizontal repeat */
+    Uint32 das_timer;          /**< When horizontal key was pressed */
+    Uint32 arr_timer;          /**< Last horizontal repeat */
 
     // --- Soft Drop ---
     bool soft_dropping;
