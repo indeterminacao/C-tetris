@@ -2,6 +2,13 @@
 #include "../../header_files/logic.h"
 #include "../../header_files/draw.h"
 
+/**
+ * @brief Moves the active piece horizontally.
+ * @param game Pointer to the main Game structure.
+ * @param dx Horizontal movement direction. Valid values are:
+ *            `-1` for left.
+ *            `+1` for right.
+ */
 static void move_horizontal(struct Game *game, int dx) {
     if (!game->piece.active) return;
     if (!check_collision(game, game->piece.x + dx, game->piece.y, game->piece.rotation)) {
