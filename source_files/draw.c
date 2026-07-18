@@ -37,26 +37,59 @@ static void draw_rect(SDL_Renderer *r, SDL_Rect *rect, Color fill, Color border)
 
 // Block rendering (from grid to screen)
 
-static void draw_block(SDL_Renderer *r, int grid_x, int grid_y, Color color) {
-    int screen_y = (grid_y - BUFFER_ZONE) * BLOCK_SIZE;
-
-    if (screen_y < 0) { // Don't draw blocks hidden in buffer zone
-        return;
-    }
-
+static void draw_block_at(SDL_Renderer *r, int grid_x, int grid_y, Color color){
     SDL_Rect rect = {
-        .x = GAME_OFFSET_X + grid_x * BLOCK_SIZE,
-        .y = screen_y,
+        .x = grid_x,
+        .y = grid_y,
         .w = BLOCK_SIZE,
         .h = BLOCK_SIZE
     };
-
     set_color(r, color);
     SDL_RenderFillRect(r, &rect);
 
     set_color(r, COLOR_OUTLINE);
     SDL_RenderDrawRect(r, &rect);
 }
+
+static void draw_block_grid(SDL_Renderer *r, int grid_x, int grid_y, Color color) {
+    int screen_y = (grid_y - BUFFER_ZONE) * BLOCK_SIZE;
+
+    if (screen_y < 0) { // Don't draw blocks hidden in buffer zone
+        return;
+    }
+    draw_block_at(r, GAME_OFFSET_X + grid_x * BLOCK_SIZE, screen_y, color);
+}
+
+// On-board piece: grid coordinates, board offset + buffer-zone culling apply.
+// Used for the active piece and the ghost piece.
+static void draw_piece_shape_on_board(SDL_Renderer *r, TetrominoType type,
+                            Rotation rotation, int grid_x,
+                            int grid_y, Color color) {
+
+    for (int py = 0; py < 4; py++) {
+        for (int px = 0; px < 4; px++) {
+            if (TETROMINOS[type][rotation][py][px]) {
+                draw_block_grid(r, grid_x + px, grid_y + py, color);
+            }
+        }
+    }
+}
+
+// Off-board piece: absolute pixel origin, no board offset, no culling.
+// Used for the hold box and (later) the next-queue preview.
+static void draw_piece_shape_at(SDL_Renderer *r, TetrominoType type,
+                            Rotation rotation, int origin_x,
+                            int origin_y, Color color) {
+
+    for (int py = 0; py < 4; py++) {
+        for (int px = 0; px < 4; px++) {
+            if (TETROMINOS[type][rotation][py][px]) {
+                draw_block_at(r, origin_x + px * BLOCK_SIZE, origin_y + py * BLOCK_SIZE, color);
+            }
+        }
+    }
+}
+
 
 // Ui / menu
 
@@ -98,17 +131,25 @@ static void draw_floor(SDL_Rect block, SDL_Renderer *r, int floor_y){
     }
 }
 
-static void draw_hold_box(SDL_Renderer *r){
+static void draw_hold_box(struct Game *game){
+    SDL_Renderer *r = game->renderer;
     SDL_Rect hold_box = {
-        .x = BLOCK_SIZE,
+        .x = BLOCK_SIZE / 2,
         .y = BLOCK_SIZE * 2,
-        .w = BLOCK_SIZE * 4,
-        .h = BLOCK_SIZE * 4
+        .w = BLOCK_SIZE * 4 + 1,
+        .h = BLOCK_SIZE * 4 + 1
     };
 
     draw_rect(r, &hold_box,
               (Color){0, 0, 0, 255},
               (Color){255, 255, 255, 255});
+
+    if(game->piece.held_piece != NONE){
+        draw_piece_shape_at(r, game->piece.held_piece, ROT_0,
+                            hold_box.x,
+                            hold_box.y,
+                            TETROMINO_COLORS[game->piece.held_piece]);
+    }
 }
 
 void draw_layout(struct Game *game) {
@@ -126,7 +167,7 @@ void draw_layout(struct Game *game) {
     draw_floor(block, r, floor_y);
 
     // Hold box
-    draw_hold_box(r);
+    draw_hold_box(game);
 }
 
 // Grid and pieces
@@ -136,7 +177,7 @@ void draw_grid(struct Game *game) {
         for (int x = 0; x < BOARD_WIDTH; x++) {
             int cell = game->grid[y][x];
             if (cell != 0) {
-                draw_block(
+                draw_block_grid(
                     game->renderer,
                     x,
                     y,
@@ -147,25 +188,11 @@ void draw_grid(struct Game *game) {
     }
 }
 
-static void draw_piece_shape(SDL_Renderer *r, TetrominoType type,
-                            Rotation rotation, int grid_x,
-                            int grid_y, Color color) {
-
-    for (int py = 0; py < 4; py++) {
-        for (int px = 0; px < 4; px++) {
-            if (TETROMINOS[type][rotation][py][px]) {
-                draw_block(r, grid_x + px, grid_y + py, color);
-            }
-        }
-    }
-}
-
-
 void draw_tetro(SDL_Renderer *r, TetrominoType type,
                 Rotation rotation,int grid_x,
                                 int grid_y){
 
-    draw_piece_shape(r, type, rotation, grid_x, grid_y, TETROMINO_COLORS[type]);
+    draw_piece_shape_on_board(r, type, rotation, grid_x, grid_y, TETROMINO_COLORS[type]);
 }
 
 //Ghost piece
@@ -183,6 +210,6 @@ void draw_ghost(struct Game *game) {
     int ghost_y = compute_ghost_y(game);
 
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
-    draw_piece_shape(r, game->piece.type, game->piece.rotation, game->piece.x, ghost_y, TETROMINO_COLORS[G]);
+    draw_piece_shape_on_board(r, game->piece.type, game->piece.rotation, game->piece.x, ghost_y, TETROMINO_COLORS[G]);
     SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_NONE);
 }

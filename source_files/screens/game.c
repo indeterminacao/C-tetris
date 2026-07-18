@@ -185,7 +185,7 @@ void game_screen_update(struct Game *game) {
 void game_screen_render(struct Game *game) {
     draw_layout(game);
     draw_grid(game);
-    if ( game->piece.active) {
+    if (game->piece.active) {
         draw_ghost(game);
         draw_tetro(game->renderer, game->piece.type,  game->piece.rotation,  game->piece.x,  game->piece.y);
     }

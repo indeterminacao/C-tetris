@@ -10,15 +10,41 @@
 #include "header_files/screens/options.h"
 
 /**
- * TODO (Architecture Refactoring)
+ * TODO LIST - (GAMEPLAY)
  *
- * [X] Game State Management
- * [X] Header Organization (split Gameconfs.h)
- * [X] Configurable Settings (DAS, ARR, Soft Drop, Gravity, etc.)
- * [ ] Internal Code Organization
- *      - Function names
- *      - Variable names
- *      - Function responsibilities
+ * HOLD 
+ * [x] Hold logic
+ * [X] Hold rendering
+ *  
+ * GAME OVER 
+ * [ ] Add STATE_GAMEOVER to GameState
+ * [ ] Create screens/gameover.c + .h, same pattern as the other 3 screens
+ * [ ] Wire into main.c's two switches + input.c's dispatcher
+ * [ ] Return to Menu 
+ * [ ] Restart option
+ *   
+ * SCORING LOGIC 
+ * [ ] Track hard drop distance, add points for it
+ * [ ] Track soft drop distance, add points for it
+ * [ ] Implement Combo
+ * [ ] Implement Perfect Clear
+ *
+ * TEXT RENDERING FOUNDATION 
+ * [ ] Load a font via SDL_ttf
+ * [ ] A draw_text() helper in draw.c
+ * [ ] Free the font in cleanup()
+ *
+ * NEXT QUEUE 
+ * [ ] Add peek-ahead to piece generation
+ * [ ] Show next piece
+ * [ ] Show 5-piece queue
+ *
+ * HUD 
+ * [ ] Score display
+ * [ ] Level display
+ * [ ] Lines display
+ * [ ] Back-to-Back display
+ * [ ] Combo display
  */
 
 int main(int argc, char *argv[]) {
