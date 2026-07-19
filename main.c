@@ -28,9 +28,13 @@
  * SCORING LOGIC 
  * [X] Track hard drop distance, add points for it
  * [X] Track soft drop distance, add points for it
- * [ ] Implement Combo
+ * [X] Implement Combo
  * [ ] Implement Perfect Clear
  *
+ * IMPLEMENT LEVEL PROGRESSION
+ * 
+ * Create the scoring event system
+ *  
  * TEXT RENDERING FOUNDATION 
  * [ ] Load a font via SDL_ttf
  * [ ] A draw_text() helper in draw.c
@@ -79,7 +83,8 @@ int main(int argc, char *argv[]) {
         .input_config.arr_delay = DEFAULT_ARR_DELAY,
         .input_config.soft_drop_arr = DEFAULT_SOFT_DROP_ARR,
         .piece.held_piece = NONE,
-        .piece.hold_used = false
+        .piece.hold_used = false,
+        .score.combo = -1
     };
 
     wipe_board(&game);

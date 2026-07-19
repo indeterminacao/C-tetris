@@ -240,6 +240,11 @@ void resolve_lock(struct Game *game) {
     lock_piece(game);
 
     uint8_t lines = clear_lines(game);
+    if (lines > 0) {
+        game->score.combo++;
+    } else {
+        game->score.combo = -1;
+    }
     update_score(game, lines, tspin);
 
     if (tspin == TSPIN_NORMAL) {
@@ -291,13 +296,18 @@ if (hard_move) {
         game->score.back_to_back = false; 
     }
     game->score.points += points * game->score.level;
-    printf("SCORE: %u\n", game->score.points);
+    
 
     game->score.total_lines += lines_cleared;
-    if (game->score.total_lines >= game->score.level * 10) {
+    while (game->score.total_lines >= game->score.level * 10) {
         game->score.level++;
         printf("LEVEL UP! %u\n", game->score.level);
     }
+
+    if(game->score.combo > 0){
+        game->score.points += 50u * (Uint32)game->score.combo * game->score.level;
+    }
+    printf("SCORE: %u\n", game->score.points);
 }
 
 void extend_lock_delay(struct Game *game) {

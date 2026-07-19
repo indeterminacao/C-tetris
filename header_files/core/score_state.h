@@ -12,6 +12,7 @@ typedef struct{
     Uint32 level;          /**< Current difficulty level */
     Uint32 total_lines;    /**< Total lines cleared (for leveling up) */
     bool back_to_back;     /**< Back-to-Back flag (Tetris or T-Spin streak)*/
+    int combo;
 } ScoreState;
 
 #endif
