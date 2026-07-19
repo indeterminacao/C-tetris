@@ -18,12 +18,17 @@ static void move_horizontal(struct Game *game, int dx) {
     }
 }
 
+static void add_soft_drop_points(struct Game *game){
+    game->score.points++;
+}
+
 static void soft_drop(struct Game *game){
     if (! game->piece.active) {
         return;
     }
     if (!check_collision(game,  game->piece.x,  game->piece.y + 1,  game->piece.rotation)) {
-         game->piece.y += 1;
+        game->piece.y += 1;
+        add_soft_drop_points(game);
         game->piece.last_move_was_rotate = false;
     }
 }

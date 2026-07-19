@@ -26,8 +26,8 @@
  * [X] Restart option
  *   
  * SCORING LOGIC 
- * [ ] Track hard drop distance, add points for it
- * [ ] Track soft drop distance, add points for it
+ * [X] Track hard drop distance, add points for it
+ * [X] Track soft drop distance, add points for it
  * [ ] Implement Combo
  * [ ] Implement Perfect Clear
  *

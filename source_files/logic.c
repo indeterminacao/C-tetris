@@ -143,17 +143,23 @@ void hold_piece(struct Game *game){
     }
 }
 
+static void add_hard_drop_score(struct Game *game, uint8_t distance){
+    game->score.points += ((Uint32)distance) * 2u;
+}
+
 void hard_drop(struct Game *game){
     if (!game->piece.active) {
         return;
     }
     game->piece.last_move_was_rotate = false; 
+    uint8_t distance = 0;
 
     while(!check_collision(game, game->piece.x, game->piece.y + 1, game->piece.rotation)){
         game->piece.y += 1;
+        distance++;
     }
+    add_hard_drop_score(game, distance);
     resolve_lock(game);
-
     game->physics.gravity_timer = game->current_tick;
 }
 
