@@ -68,5 +68,6 @@ void hard_drop(struct Game *game);
 */
 void extend_lock_delay(struct Game *game);
 void hold_piece(struct Game *game);
+void wipe_board(struct Game *game);
 
 #endif

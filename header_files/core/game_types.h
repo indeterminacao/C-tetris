@@ -9,7 +9,8 @@ typedef enum {
     STATE_MENU,        /**< Main menu */
     STATE_GAME,        /**< Gameplay running */
     STATE_LEADERBOARD, /**< Leaderboard / scores */
-    STATE_OPTIONS      /**< Options / settings */
+    STATE_OPTIONS,     /**< Options / settings */
+    STATE_GAMEOVER
 } GameState;
 
 typedef enum {

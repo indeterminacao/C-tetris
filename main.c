@@ -4,10 +4,12 @@
 #include "Gameconfs.h"
 #include "header_files/init.h"
 #include "header_files/input.h"
+#include "header_files/logic.h"
 #include "header_files/screens/menu.h"
 #include "header_files/screens/game.h"
 #include "header_files/screens/leaderboard.h"
 #include "header_files/screens/options.h"
+#include "header_files/screens/gameover.h"
 
 /**
  * TODO LIST - (GAMEPLAY)
@@ -17,11 +19,11 @@
  * [X] Hold rendering
  *  
  * GAME OVER 
- * [ ] Add STATE_GAMEOVER to GameState
- * [ ] Create screens/gameover.c + .h, same pattern as the other 3 screens
- * [ ] Wire into main.c's two switches + input.c's dispatcher
- * [ ] Return to Menu 
- * [ ] Restart option
+ * [X] Add STATE_GAMEOVER to GameState
+ * [X] Create screens/gameover.c + .h, same pattern as the other 3 screens
+ * [X] Wire into main.c's two switches + input.c's dispatcher
+ * [X] Return to Menu 
+ * [X] Restart option
  *   
  * SCORING LOGIC 
  * [ ] Track hard drop distance, add points for it
@@ -65,6 +67,8 @@ int main(int argc, char *argv[]) {
         .btn_play = {SCREEN_WIDTH/2 - 100, 150, 200, 50},
         .btn_leaderboard = {SCREEN_WIDTH/2 - 100, 250, 200, 50},
         .btn_options = {SCREEN_WIDTH/2 - 100, 350, 200, 50},
+        .btn_restart = {SCREEN_WIDTH/2 - 100, 250, 200, 50},
+        .btn_return_menu = {SCREEN_WIDTH/2 - 100, 350, 200, 50},
         .piece.active = false,
         .piece.last_move_was_rotate = false,
         .physics.lock_timer = 0,
@@ -78,11 +82,7 @@ int main(int argc, char *argv[]) {
         .piece.hold_used = false
     };
 
-    for(int y=0; y<TOTAL_ROWS; y++) {
-        for(int x=0; x<BOARD_WIDTH; x++) {
-            game.grid[y][x] = 0;
-        }
-    }
+    wipe_board(&game);
 
     if(sdl_initializer(&game)){
         return 1;
@@ -106,6 +106,9 @@ int main(int argc, char *argv[]) {
             case STATE_OPTIONS:
                 options_update(&game);
                 break;
+            case STATE_GAMEOVER:
+            gameover_update(&game);
+            break;
         }
 
         SDL_SetRenderDrawColor(game.renderer, 20, 20, 20, 255);
@@ -124,6 +127,9 @@ int main(int argc, char *argv[]) {
             case STATE_OPTIONS:
                 options_render(&game);
                 break;
+            case STATE_GAMEOVER:
+            gameover_render(&game);
+            break;
         }
 
         SDL_RenderPresent(game.renderer);

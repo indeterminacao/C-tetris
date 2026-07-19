@@ -307,3 +307,11 @@ void extend_lock_delay(struct Game *game) {
         game->physics.lock_timer = game->current_tick;
     }
 }
+
+void wipe_board(struct Game *game){
+        for(int y = 0; y<TOTAL_ROWS; y++) {
+        for(int x = 0; x<BOARD_WIDTH; x++) {
+            game->grid[y][x] = 0;
+        }
+    }
+}

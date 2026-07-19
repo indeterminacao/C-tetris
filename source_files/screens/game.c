@@ -137,7 +137,7 @@ static bool spawn_if_needed(struct Game *game) {
 
     spawn_piece(game);
     if (!game->piece.active) {
-        game->ProgramOn = false;
+        game->state = STATE_GAMEOVER;
     }
     return true;
 }

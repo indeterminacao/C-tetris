@@ -44,6 +44,8 @@ struct Game {
     SDL_Rect btn_play;        /**< Menu: Play button area */
     SDL_Rect btn_leaderboard; /**< Menu: Leaderboard button area */
     SDL_Rect btn_options;     /**< Menu: Options button area */
+    SDL_Rect btn_restart;      /**< Game Over: Restart button area */
+    SDL_Rect btn_return_menu;  /**< Game Over: Return to Menu button area */
     InputState input;         /**< Current input state */
     InputConfig input_config;
 };

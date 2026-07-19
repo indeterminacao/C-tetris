@@ -4,6 +4,7 @@
 #include "../header_files/screens/game.h"
 #include "../header_files/screens/leaderboard.h"
 #include "../header_files/screens/options.h"
+#include "../header_files/screens/gameover.h"
 
 static void dispatch_to_screen(struct Game *game, SDL_Event event){
     switch (game->state)
@@ -20,6 +21,9 @@ static void dispatch_to_screen(struct Game *game, SDL_Event event){
     case STATE_OPTIONS:
         options_handle_input(game, event);
         break;
+    case STATE_GAMEOVER:
+        gameover_handle_input(game, event);
+        break;
     default:
         break;
     }
@@ -32,13 +36,13 @@ void event_handling(struct Game *game){
             game->ProgramOn = false;
             continue;
         }
-        
         if (event.type == SDL_KEYDOWN && event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){
-            if (game->state == STATE_GAME || game->state == STATE_LEADERBOARD || game->state == STATE_OPTIONS){
-                game->state = STATE_MENU;
-            } else{
-                game->ProgramOn = false;
-            }
+        if (game->state == STATE_GAME || game->state == STATE_LEADERBOARD ||
+            game->state == STATE_OPTIONS || game->state == STATE_GAMEOVER) {
+            game->state = STATE_MENU;
+        } else {
+            game->ProgramOn = false;
+        }
             continue;
         }
 
