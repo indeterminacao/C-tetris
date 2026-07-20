@@ -29,6 +29,7 @@ struct Game {
 
     // --- Grid & Board ---
     uint8_t grid[TOTAL_ROWS][BOARD_WIDTH]; /**< Board grid: 0=empty, >0=piece_id+1 */
+    int block_count;
 
     // --- Timing & Physics ---
     Uint32 current_tick;          /**< Current SDL tick (global timing) */

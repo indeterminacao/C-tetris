@@ -190,6 +190,7 @@ uint8_t clear_lines(struct Game *game) {
         }
         if(line_full){
             lines_cleared++;
+            game->block_count -= BOARD_WIDTH;
             for(int ty = y; ty > 0; ty--){
                 for(int tx = 0; tx < BOARD_WIDTH; tx++){
                     game->grid[ty][tx] = game->grid[ty - 1][tx];
@@ -198,7 +199,7 @@ uint8_t clear_lines(struct Game *game) {
             for(int tx = 0; tx < BOARD_WIDTH; tx++){
                 game->grid[0][tx] = 0;
             }
-            y--; 
+            y--;
         }
     }
     return lines_cleared;
@@ -234,11 +235,44 @@ TSpinType detect_t_spin(struct Game *game) {
     return TSPIN_NORMAL; 
 }
 
+static bool is_perfect_clear(struct Game *game){
+    if(game->block_count == 0){
+        return true;
+    } else{
+        return false;
+    }
+}
+
+static Uint32 perfect_clear_bonus(uint8_t lines, bool back_to_back) {
+    switch (lines) {
+        case 1:
+            return 800u;
+            break;
+        case 2:
+            return 1200u;
+            break;
+        case 3:
+            return 1800u;
+            break;
+        case 4:
+            if(back_to_back){
+                return 3200u;
+            } else{
+                return 2000u;
+            }
+            break;
+
+        default:
+            return 0u;
+            break;
+    }
+}
+
 void resolve_lock(struct Game *game) {
     TSpinType tspin = detect_t_spin(game);
 
     lock_piece(game);
-
+    game->block_count += 4;
     uint8_t lines = clear_lines(game);
     if (lines > 0) {
         game->score.combo++;
@@ -307,6 +341,9 @@ if (hard_move) {
     if(game->score.combo > 0){
         game->score.points += 50u * (Uint32)game->score.combo * game->score.level;
     }
+    if(is_perfect_clear(game)){
+        game->score.points += perfect_clear_bonus(lines_cleared, game->score.back_to_back);
+    }
     printf("SCORE: %u\n", game->score.points);
 }
 
@@ -330,4 +367,5 @@ void wipe_board(struct Game *game){
             game->grid[y][x] = 0;
         }
     }
+    game->block_count = 0;
 }

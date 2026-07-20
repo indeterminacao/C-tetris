@@ -34,6 +34,7 @@ static void reset_game_state(struct Game *game){
         game->score.points = 0;
         game->score.total_lines = 0;
         game->score.back_to_back = false;
+        game->score.combo = -1;
         game->state = STATE_GAME;
         wipe_board(game);
 }

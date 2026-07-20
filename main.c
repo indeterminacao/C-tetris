@@ -84,7 +84,8 @@ int main(int argc, char *argv[]) {
         .input_config.soft_drop_arr = DEFAULT_SOFT_DROP_ARR,
         .piece.held_piece = NONE,
         .piece.hold_used = false,
-        .score.combo = -1
+        .score.combo = -1,
+        .block_count = 0
     };
 
     wipe_board(&game);
