@@ -3,43 +3,43 @@ A Tetris clone written in C and SDL2 for learning purposes.
 
 ## Dependencies & Building
 
-This project relies on the **SDL2** library and builds on both Windows and Linux/WSL from a single `CMakeLists.txt`. Since binary files are excluded from this repository for portability, you must set up the development environment locally.
-
-> **Note:** The `lib/`, `include/`, `bin/`, and required runtime binaries (such as `SDL2.dll`) are not included in this repository and must be provided locally.
+This project relies on the **SDL2** library, discovered via `pkg-config`, and builds on Windows, Linux, and WSL from a single `CMakeLists.txt`.
 
 ### Prerequisites
 
--   **C Compiler:** GCC (MinGW for Windows) or Clang/GCC (Linux).
+-   **C Compiler:** [MSYS2](https://www.msys2.org/) (UCRT64 environment) on Windows, or Clang/GCC on Linux/WSL.
 -   **CMake:** Version 3.16 or newer.
--   **SDL2 Development Libraries:** Version 2.32.x (or newer).
+-   **SDL2 Development Libraries:** Version 2.32.x (or newer), providing a `pkg-config` `.pc` file.
 
 ---
 
-### Setup for Windows (MinGW)
+### Setup for Windows (MSYS2)
 
-1.  **Download SDL2:**
-    -   Go to the [SDL GitHub Releases](https://github.com/libsdl-org/SDL/releases).
-    -   Download the latest MinGW development libraries (e.g., `SDL2-devel-2.32.x-mingw.tar.gz`).
+1.  **Install [MSYS2](https://www.msys2.org/)** (or `winget install MSYS2.MSYS2`).
 
-2.  **Install Dependencies:**
-    -   Extract the archive, then from the folder for your compiler (e.g., `i686-w64-mingw32`):
-    -   **Library Files:** Copy the contents of `lib` into this project's `lib/` directory (this includes `lib/cmake/SDL2/`, which lets CMake locate SDL2 automatically).
-    -   **Header Files:** Copy the `include` folder into this project's root directory (so you have an `include/SDL2` folder structure).
-    -   **Runtime Binary:** Copy `SDL2.dll` from the `bin` folder (inside the downloaded archive) into this project's own `bin/` directory (create it if it does not exist yet).
-
-3.  **Compile & Run:**
+2.  **Install the toolchain and SDL2** — open the **MSYS2 UCRT64** terminal specifically (not the plain "MSYS2" one) and run:
     ```bash
-    cmake -B build -S . -G "MinGW Makefiles"
-    cmake --build build
-    build\ctetris.exe
+    pacman -Syu
+    pacman -S mingw-w64-ucrt-x86_64-toolchain \
+              mingw-w64-ucrt-x86_64-cmake \
+              mingw-w64-ucrt-x86_64-ninja \
+              mingw-w64-ucrt-x86_64-pkgconf \
+              mingw-w64-ucrt-x86_64-SDL2 \
+              mingw-w64-ucrt-x86_64-SDL2_image \
+              mingw-w64-ucrt-x86_64-SDL2_ttf \
+              mingw-w64-ucrt-x86_64-SDL2_mixer
     ```
-    The `-G "MinGW Makefiles"` flag is required: without it, CMake's default generator guess on Windows is often "NMake Makefiles" (Visual Studio's build tool), which fails immediately if only MinGW is installed (`Running 'nmake' '-?' failed`). CMake copies `SDL2.dll` next to the built executable automatically, so no manual copy step is needed after the first setup.
+    `pacman` installs headers, libs, the runtime DLL, and a `pkg-config` `.pc` file, all correctly in place — no manual downloading or copying files into the project. (`SDL2_image`/`SDL2_ttf`/`SDL2_mixer` aren't linked by the build yet — they're here ahead of planned text, image, and sound features.)
 
-    **If configuring still fails** with `CMAKE_MAKE_PROGRAM is not set`: some MinGW distributions (notably the classic, non -w64 one) name their build tool `make.exe` instead of the `mingw32-make.exe` CMake looks for by default. Find yours and point CMake at it directly:
-    ```powershell
-    Get-Command make | Select-Object -ExpandProperty Source
-    cmake -B build -S . -G "MinGW Makefiles" -DCMAKE_MAKE_PROGRAM="<path from above, with / instead of \>"
+3.  **Compile & Run**, from the same UCRT64 terminal, in the project directory:
+    ```bash
+    cmake -B build -S . -G Ninja
+    cmake --build build
+    ./build/ctetris.exe
     ```
+    `SDL2.dll` is located automatically from the MSYS2 UCRT64 installation and copied next to the executable — no manual DLL placement needed.
+
+> **Note:** > Note: The recommended environment is the MSYS2 **UCRT64** terminal. Regular PowerShell/cmd terminals do not automatically have access to the MSYS2 toolchain unless configured manually.
 
 ---
 
@@ -48,7 +48,7 @@ This project relies on the **SDL2** library and builds on both Windows and Linux
 1.  **Install SDL2:**
     ```bash
     sudo apt-get update
-    sudo apt-get install libsdl2-dev
+    sudo apt-get install libsdl2-dev pkg-config
     ```
 
 2.  **Compile & Run:**
@@ -62,12 +62,12 @@ This project relies on the **SDL2** library and builds on both Windows and Linux
 
 ## Build options
 
-Both platforms share the same `CMakeLists.txt`, configurable via `-D` flags at the `cmake -B build -S .` step:
+All platforms share the same `CMakeLists.txt`, configurable via `-D` flags at the `cmake -B build -S .` step:
 
 | Option               | Default                              | Purpose                                                                              |
 |----------------------|---------------------------------------|---------------------------------------------------------------------------------------|
 | `WARNINGS_AS_ERRORS` | `ON`                                 | Treat compiler warnings as errors (`-Werror`)                                        |
-| `ENABLE_ASAN`        | `ON` on Linux/macOS, `OFF` on Windows | AddressSanitizer -- off by default on Windows, since classic (non -w64) MinGW does not ship `libasan` |
+| `ENABLE_ASAN`        | `ON` on Linux/macOS, `OFF` on Windows | AddressSanitizer -- off by default on Windows. AddressSanitizer is enabled by default on Unix-like systems and disabled by default on Windows. Some MinGW/MSYS2 GCC toolchains do not provide the required libasan runtime. If your toolchain supports it, you can enable it manually with -DENABLE_ASAN=ON. |
 
 Example: `cmake -B build -S . -DENABLE_ASAN=OFF -DWARNINGS_AS_ERRORS=OFF`
 
