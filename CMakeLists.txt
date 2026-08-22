@@ -15,6 +15,7 @@ endif()
 # --------------------------------------------------
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
+pkg_check_modules(SDL2_TTF REQUIRED IMPORTED_TARGET SDL2_ttf)
 
 
 # --------------------------------------------------
@@ -45,6 +46,7 @@ target_include_directories(ctetris PRIVATE
 # --------------------------------------------------
 target_link_libraries(ctetris PRIVATE
     PkgConfig::SDL2
+    PkgConfig::SDL2_TTF
 )
 
 
@@ -98,12 +100,22 @@ if(WIN32)
         REQUIRED
     )
 
+    find_file(SDL2_TTF_DLL
+        NAMES SDL2_ttf.dll
+        PATHS
+            $ENV{MSYSTEM_PREFIX}/bin
+            C:/msys64/ucrt64/bin
+        REQUIRED
+    )
+
     message(STATUS "SDL2 DLL: ${SDL2_DLL}")
+    message(STATUS "SDL2_ttf DLL: ${SDL2_TTF_DLL}")
 
 
     add_custom_command(TARGET ctetris POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${SDL2_DLL}"
+            "${SDL2_TTF_DLL}"
             $<TARGET_FILE_DIR:ctetris>
     )
 

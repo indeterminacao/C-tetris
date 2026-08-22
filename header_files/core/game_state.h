@@ -9,6 +9,7 @@
 #include "../core/game_types.h"
 #include "../core/input_state.h"
 #include "../core/score_state.h"
+#include "../core/score_notification.h"
 #include "../core/piece_state.h"
 #include "../core/physics_state.h"
 #include "../core/input_config.h"
@@ -40,6 +41,7 @@ struct Game {
     PieceState piece;         /**< Current piece state */
 
     ScoreState score;         /**< Current score state */
+    ScoreNotificationQueue notifications;
 
     // --- UI & Inputs ---
     SDL_Rect btn_play;        /**< Menu: Play button area */

@@ -29,7 +29,7 @@
  * [X] Track hard drop distance, add points for it
  * [X] Track soft drop distance, add points for it
  * [X] Implement Combo
- * [ ] Implement Perfect Clear
+ * [X] Implement Perfect Clear
  *
  * IMPLEMENT LEVEL PROGRESSION
  * 

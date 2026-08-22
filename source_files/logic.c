@@ -231,7 +231,6 @@ TSpinType detect_t_spin(struct Game *game) {
         return TSPIN_NONE;
     } 
     
-
     return TSPIN_NORMAL; 
 }
 
@@ -268,6 +267,22 @@ static Uint32 perfect_clear_bonus(uint8_t lines, bool back_to_back) {
     }
 }
 
+static void push_score_notification(struct Game *game, ScoreEventType event, Uint32 points){
+    ScoreNotificationQueue *q = &game->notifications;
+
+    if(q->count == MAX_SCORE_NOTIFICATIONS){
+        for(int i = 1; i < MAX_SCORE_NOTIFICATIONS; i++){
+            q->items[i - 1] = q->items[i];
+        }
+        q->count--;
+    }
+
+    q->items[q->count].type = event;
+    q->items[q->count].points = points;
+    q->items[q->count].expires_at = game->current_tick + NOTIFICATION_DURATION_MS;
+    q->count++;
+}
+
 void resolve_lock(struct Game *game) {
     TSpinType tspin = detect_t_spin(game);
 
@@ -280,71 +295,77 @@ void resolve_lock(struct Game *game) {
         game->score.combo = -1;
     }
     update_score(game, lines, tspin);
-
-    if (tspin == TSPIN_NORMAL) {
-        if (lines == 0) printf("T-Spin Zero!\n"); 
-        if (lines == 1) printf("T-SPIN SINGLE! \n");
-        if (lines == 2) printf("T-SPIN DOUBLE! \n");
-        if (lines == 3) printf("T-SPIN TRIPLE! \n");
-    } else if (lines > 0) {
-        if (lines == 4) printf("TETRIS! \n");
-        else printf("Cleared %d lines\n", lines);
-    }
-
+    
     game->piece.active = false;
     game->piece.last_move_was_rotate = false;
     game->piece.hold_used = false;
 }
 
+static void apply_bonus(struct Game *game, ScoreEventType type, Uint32 bonus){
+    if(bonus == 0){
+        return;
+    }
+    push_score_notification(game, type, bonus);
+    game->score.points += bonus;
+}
+
 void update_score(struct Game *game, uint8_t lines_cleared, TSpinType tspin) {
     Uint32 points = 0;
     bool hard_move = false;
+    ScoreEventType clear_type = SCORE_NONE;
+    
 
     if (tspin == TSPIN_NORMAL) {
         hard_move = true;
         switch (lines_cleared) {
-            case 0: points = 400; break; 
-            case 1: points = 800; break; 
-            case 2: points = 1200; break; 
-            case 3: points = 1600; break; 
+            case 0: points = 400; clear_type = SCORE_TSPIN_ZERO; break; 
+            case 1: points = 800; clear_type = SCORE_TSPIN_SINGLE; break; 
+            case 2: points = 1200; clear_type = SCORE_TSPIN_DOUBLE; break; 
+            case 3: points = 1600; clear_type = SCORE_TSPIN_TRIPLE; break; 
         }
     } else {
         switch (lines_cleared) {
-            case 1: points = 100; break; 
-            case 2: points = 300; break; 
-            case 3: points = 500; break; 
-            case 4: 
-                points = 800; 
-                hard_move = true;
-            break; 
+            case 1: points = 100; clear_type = SCORE_SINGLE; break; 
+            case 2: points = 300; clear_type = SCORE_DOUBLE; break; 
+            case 3: points = 500; clear_type = SCORE_TRIPLE; break; 
+            case 4: points = 800; clear_type = SCORE_TETRIS; hard_move = true; break; 
         }
     }
-if (hard_move) {
+
+    Uint32 base = points * game->score.level;
+    game->score.points += base;
+    if(clear_type != SCORE_NONE){
+        push_score_notification(game, clear_type, base);
+    }
+
+    Uint32 b2b_bonus = 0;
+    if (hard_move) {
         if (game->score.back_to_back) {
-            points = (points * 3) / 2; 
-            printf("BACK-TO-BACK! \n"); 
+            b2b_bonus = base / 2;
         }
         game->score.back_to_back = true; 
-    } 
-    else if (lines_cleared > 0) {
+    } else if (lines_cleared > 0) {
         game->score.back_to_back = false; 
     }
-    game->score.points += points * game->score.level;
-    
+    apply_bonus(game, SCORE_B2B, b2b_bonus);
+
+    Uint32 combo_bonus = (game->score.combo > 0) 
+    ? 50u * (Uint32)game->score.combo * game->score.level 
+    : 0;
+    apply_bonus(game, SCORE_COMBO, combo_bonus);
+
+    Uint32 pc_bonus = is_perfect_clear(game) 
+    ? perfect_clear_bonus(lines_cleared, game->score.back_to_back) 
+    : 0;
+    apply_bonus(game, SCORE_PERFECT_CLEAR, pc_bonus);
+
+    printf("SCORE: %u\n", game->score.points);
 
     game->score.total_lines += lines_cleared;
     while (game->score.total_lines >= game->score.level * 10) {
         game->score.level++;
-        printf("LEVEL UP! %u\n", game->score.level);
+        push_score_notification(game, SCORE_LEVEL_UP, 0);
     }
-
-    if(game->score.combo > 0){
-        game->score.points += 50u * (Uint32)game->score.combo * game->score.level;
-    }
-    if(is_perfect_clear(game)){
-        game->score.points += perfect_clear_bonus(lines_cleared, game->score.back_to_back);
-    }
-    printf("SCORE: %u\n", game->score.points);
 }
 
 void extend_lock_delay(struct Game *game) {

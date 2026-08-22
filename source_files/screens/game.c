@@ -168,22 +168,36 @@ static void update_gravity_and_lock(struct Game *game, Uint32 now){
     }
 }
 
+/**
+ * @brief Removes expired score notifications from the queue.
+ *
+ * Compacts the notification array in-place by keeping only notifications
+ * whose expiration time has not yet been reached.
+ *
+ * @param game Pointer to the game state.
+ */
+static void update_score_notifications(struct Game *game) {
+    ScoreNotificationQueue *q = &game->notifications;
+    int write = 0;
+    for (int read = 0; read < q->count; read++) {
+        if (q->items[read].expires_at > game->current_tick) {
+            q->items[write++] = q->items[read];
+        }
+    }
+    q->count = write;
+}
 
 void game_screen_update(struct Game *game) {
     Uint32 now = game->current_tick;
 
-    // Continuous DAS/ARR horizontal movement
+    update_score_notifications(game);
     update_das_arr(game, now);
-
-    // Continuous soft drop
     update_soft_drop_repeat(game, now);
 
-    // Spawn a new piece if none is active
     if(spawn_if_needed(game)){
         return;
     }
 
-    // Gravity and lock delay
     update_gravity_and_lock(game, now);
 }
 

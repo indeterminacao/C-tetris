@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 
-
 // --- Scoring & Progression ---
 typedef struct{
     Uint32 points;         /**< Current score */
